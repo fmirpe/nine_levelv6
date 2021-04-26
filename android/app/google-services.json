@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "784559939625",
+    "project_id": "nine-level-beta-6",
+    "storage_bucket": "nine-level-beta-6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:784559939625:android:9089b055e7456a6618fc38",
+        "android_client_info": {
+          "package_name": "com.ninelevel.v1b6"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "784559939625-1ctq2pc0huqoaof1fl2rtt620dksepch.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ninelevel.v1b6",
+            "certificate_hash": "9f9ce62740f8cf66d1ba7e742d2ede625af6ed19"
+          }
+        },
+        {
+          "client_id": "784559939625-m9i32m3jp1t0a5nfpe5bhv04lqugsjin.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ninelevel.v1b6",
+            "certificate_hash": "b5c5e11c3d15c65094641ca291171a1f6dacbe4f"
+          }
+        },
+        {
+          "client_id": "784559939625-se1lcmjhjuive844ok88vl0gfv1s8ni1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD5Wav4OFHsl7TbjxHc2bhI7qLSihRu8kE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "784559939625-se1lcmjhjuive844ok88vl0gfv1s8ni1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
