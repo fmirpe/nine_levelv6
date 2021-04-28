@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:nine_levelv6/components/custom_video.dart';
+import 'package:nine_levelv6/components/custom_video_local.dart';
 import 'package:provider/provider.dart';
 import 'package:nine_levelv6/models/user.dart';
 import 'package:nine_levelv6/utils/firebase.dart';
@@ -120,7 +121,12 @@ class _CreatePostVideoState extends State<CreatePostVideo> {
                                 ),
                               ),
                             )
-                          : Container(),
+                          : CustomVideoLocal(
+                              imageUrl: viewModel.mediaUrl,
+                              width: MediaQuery.of(context).size.width,
+                              height: MediaQuery.of(context).size.width - 30,
+                              fit: BoxFit.cover,
+                            ),
                 ),
               ),
               SizedBox(height: 20.0),

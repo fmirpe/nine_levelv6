@@ -7,6 +7,7 @@ import 'package:nine_levelv6/components/stream_builder_wrapper.dart';
 import 'package:nine_levelv6/models/post.dart';
 import 'package:nine_levelv6/utils/constants.dart';
 import 'package:nine_levelv6/utils/firebase.dart';
+import 'package:nine_levelv6/videochats/home_page.dart';
 import 'package:nine_levelv6/widgets/userpost.dart';
 
 class Timeline extends StatelessWidget {
@@ -44,7 +45,15 @@ class Timeline extends StatelessWidget {
                   context, CupertinoPageRoute(builder: (_) => Chats()));
             },
           ),
-          SizedBox(width: 20.0),
+          IconButton(
+            icon: Icon(CupertinoIcons.videocam_circle_fill,
+                size: 30.0, color: Constants.gradianButtom),
+            onPressed: () {
+              Navigator.push(
+                  context, CupertinoPageRoute(builder: (_) => HomePage()));
+            },
+          ),
+          SizedBox(width: 10.0),
         ],
       ),
       body: ListView(

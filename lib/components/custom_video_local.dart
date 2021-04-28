@@ -1,15 +1,17 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:nine_levelv6/widgets/indicators.dart';
 import 'package:video_player/video_player.dart';
 
-class CustomVideo extends StatefulWidget {
-  final String imageUrl;
+class CustomVideoLocal extends StatefulWidget {
+  final File imageUrl;
   final double height;
   final double width;
   final BoxFit fit;
 
-  CustomVideo({
+  CustomVideoLocal({
     this.imageUrl,
     this.height = 100.0,
     this.width = double.infinity,
@@ -17,23 +19,22 @@ class CustomVideo extends StatefulWidget {
   });
 
   @override
-  _CustomVideoState createState() => _CustomVideoState();
+  _CustomVideoLocalState createState() => _CustomVideoLocalState();
 }
 
-class _CustomVideoState extends State<CustomVideo> {
+class _CustomVideoLocalState extends State<CustomVideoLocal> {
   VideoPlayerController _controller;
-
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.network(widget.imageUrl);
+    _controller = VideoPlayerController.file(widget.imageUrl);
 
     _controller.addListener(() {
       setState(() {});
     });
-    _controller.setLooping(false);
+    _controller.setLooping(true);
     _controller.initialize().then((_) => setState(() {}));
-    //_controller.play();
+    _controller.play();
   }
 
   @override

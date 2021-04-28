@@ -41,7 +41,7 @@ class PostService extends Service {
   }
 
   uploadPostVideo(File image, String location, String description) async {
-    String link = await uploadImage(posts, image);
+    String link = await uploadVideo(posts, image);
     DocumentSnapshot doc =
         await usersRef.doc(firebaseAuth.currentUser.uid).get();
     user = UserModel.fromJson(doc.data());
