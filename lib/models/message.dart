@@ -7,7 +7,12 @@ class Message {
   MessageType type;
   Timestamp time;
 
-  Message({this.content, this.senderUid, this.type, this.time});
+  Message({
+    this.content,
+    this.senderUid,
+    this.type,
+    this.time,
+  });
 
   Message.fromJson(Map<String, dynamic> json) {
     content = json['content'];

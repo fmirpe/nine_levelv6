@@ -3,6 +3,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:nine_levelv6/helpers/utils.dart';
+import 'package:nine_levelv6/screens/callscreens/pickup/pickup_layout.dart';
+import 'package:nine_levelv6/utils/call_utilities.dart';
+import 'package:nine_levelv6/utils/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:nine_levelv6/components/chat_bubble.dart';
 import 'package:nine_levelv6/models/enum/message_type.dart';
@@ -67,113 +71,154 @@ class _ConversationState extends State<Conversation> {
     var user = Provider.of<UserViewModel>(context, listen: true).user;
     return Consumer<ConversationViewModel>(
         builder: (BuildContext context, viewModel, Widget child) {
-      return Scaffold(
-        key: viewModel.scaffoldKey,
-        appBar: AppBar(
-          leading: GestureDetector(
-            onTap: () {
-              Navigator.pop(context);
-            },
-            child: Icon(
-              Icons.keyboard_backspace,
+      return PickupLayout(
+        scaffold: Scaffold(
+          key: viewModel.scaffoldKey,
+          appBar: AppBar(
+            leading: GestureDetector(
+              onTap: () {
+                Navigator.pop(context);
+              },
+              child: Icon(
+                Icons.keyboard_backspace,
+              ),
             ),
+            elevation: 0.0,
+            titleSpacing: 0,
+            title: buildUserName(),
+            actions: [
+              IconButton(
+                icon: Icon(CupertinoIcons.videocam_circle_fill,
+                    size: 30.0, color: Constants.gradianButtom),
+                onPressed: () async {
+                  var snapshotori = await usersRef.doc('${user.uid}').get();
+                  UserModel userfrom = UserModel.fromJson(snapshotori.data());
+
+                  var snapshot = await usersRef.doc('${widget.userId}').get();
+                  UserModel userto = UserModel.fromJson(snapshot.data());
+
+                  await handlePermissionsForCall(context)
+                      ? CallUtils.dial(
+                          from: userfrom, to: userto, context: context)
+                      : {};
+                },
+                // onPressed: () async =>
+                // await handlePermissionsForCall(context)
+                //     ? CallUtils.dial(
+                //         from: sender,
+                //         to: widget.receiver,
+                //         context: context,
+                //       )
+                //     : {},
+              ),
+            ],
           ),
-          elevation: 0.0,
-          titleSpacing: 0,
-          title: buildUserName(),
-        ),
-        body: Container(
-          height: MediaQuery.of(context).size.height,
-          child: Column(
-            children: [
-              Flexible(
-                child: StreamBuilder(
-                  stream: messageListStream(widget.chatId),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      List messages = snapshot.data.documents;
-                      viewModel.setReadCount(
-                          widget.chatId, user, messages.length);
-                      return ListView.builder(
-                        controller: scrollController,
-                        padding: EdgeInsets.symmetric(horizontal: 10.0),
-                        itemCount: messages.length,
-                        reverse: true,
-                        itemBuilder: (BuildContext context, int index) {
-                          Message message = Message.fromJson(
-                              messages.reversed.toList()[index].data());
-                          return ChatBubble(
+          body: Container(
+            height: MediaQuery.of(context).size.height,
+            child: Column(
+              children: [
+                Flexible(
+                  child: StreamBuilder(
+                    stream: messageListStream(widget.chatId),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        List messages = snapshot.data.documents;
+                        viewModel.setReadCount(
+                            widget.chatId, user, messages.length);
+                        return ListView.builder(
+                          controller: scrollController,
+                          padding: EdgeInsets.symmetric(horizontal: 10.0),
+                          itemCount: messages.length,
+                          reverse: true,
+                          itemBuilder: (BuildContext context, int index) {
+                            Message message = Message.fromJson(
+                                messages.reversed.toList()[index].data());
+                            var reead = 0; //_readMessage();
+                            return ChatBubble(
                               message: '${message.content}',
                               time: message?.time,
                               isMe: message?.senderUid == user?.uid,
-                              type: message?.type);
-                        },
-                      );
-                    } else {
-                      return Center(child: circularProgress(context));
-                    }
-                  },
+                              type: message?.type,
+                              read: reead,
+                            );
+                          },
+                        );
+                      } else {
+                        return Center(child: circularProgress(context));
+                      }
+                    },
+                  ),
                 ),
-              ),
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: BottomAppBar(
-                  elevation: 10.0,
-                  child: Container(
-                    constraints: BoxConstraints(maxHeight: 100.0),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        IconButton(
-                          icon: Icon(
-                            CupertinoIcons.photo_on_rectangle,
-                            color: Theme.of(context).accentColor,
-                          ),
-                          onPressed: () => showPhotoOptions(viewModel, user),
-                        ),
-                        Flexible(
-                          child: TextField(
-                            controller: messageController,
-                            focusNode: focusNode,
-                            style: TextStyle(
-                              fontSize: 15.0,
-                              color:
-                                  Theme.of(context).textTheme.headline6.color,
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: BottomAppBar(
+                    elevation: 10.0,
+                    child: Container(
+                      constraints: BoxConstraints(maxHeight: 100.0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          IconButton(
+                            icon: Icon(
+                              CupertinoIcons.photo_on_rectangle,
+                              color: Theme.of(context).accentColor,
                             ),
-                            decoration: InputDecoration(
-                              contentPadding: EdgeInsets.all(10.0),
-                              enabledBorder: InputBorder.none,
-                              border: InputBorder.none,
-                              hintText: "Type your message",
-                              hintStyle: TextStyle(
+                            onPressed: () => showPhotoOptions(viewModel, user),
+                          ),
+                          Flexible(
+                            child: TextField(
+                              controller: messageController,
+                              focusNode: focusNode,
+                              style: TextStyle(
+                                fontSize: 15.0,
                                 color:
                                     Theme.of(context).textTheme.headline6.color,
                               ),
+                              decoration: InputDecoration(
+                                contentPadding: EdgeInsets.all(10.0),
+                                enabledBorder: InputBorder.none,
+                                border: InputBorder.none,
+                                hintText: "Type your message",
+                                hintStyle: TextStyle(
+                                  color: Theme.of(context)
+                                      .textTheme
+                                      .headline6
+                                      .color,
+                                ),
+                              ),
+                              maxLines: null,
                             ),
-                            maxLines: null,
                           ),
-                        ),
-                        IconButton(
-                          icon: Icon(
-                            Feather.send,
-                            color: Theme.of(context).accentColor,
+                          IconButton(
+                            icon: Icon(
+                              Feather.send,
+                              color: Theme.of(context).accentColor,
+                            ),
+                            onPressed: () {
+                              if (messageController.text.isNotEmpty) {
+                                sendMessage(viewModel, user);
+                              }
+                            },
                           ),
-                          onPressed: () {
-                            if (messageController.text.isNotEmpty) {
-                              sendMessage(viewModel, user);
-                            }
-                          },
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              )
-            ],
+                )
+              ],
+            ),
           ),
         ),
       );
     });
+  }
+
+  _readMessage() async {
+    var viewModel = Provider.of<ConversationViewModel>(context, listen: false);
+    return await viewModel.getReadCount(
+      widget.chatId,
+      widget.userId,
+    );
   }
 
   _buildOnlineText(

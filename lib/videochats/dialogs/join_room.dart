@@ -47,11 +47,13 @@ class JoinRoomDialog extends StatelessWidget {
                     await handlePermissionsForCall(context);
                 if (isPermissionGranted) {
                   Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => VideoCallScreen(
-                                channelName: roomTxtController.text,
-                              )));
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => VideoCallScreen(
+                        channelName: roomTxtController.text,
+                      ),
+                    ),
+                  );
                 } else {
                   Get.snackbar("Failed", "Enter Room-Id to Join.",
                       backgroundColor: Colors.white,

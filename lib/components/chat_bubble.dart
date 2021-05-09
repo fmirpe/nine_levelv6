@@ -10,12 +10,14 @@ class ChatBubble extends StatefulWidget {
   final MessageType type;
   final Timestamp time;
   final bool isMe;
+  final int read;
 
   ChatBubble({
     @required this.message,
     @required this.time,
     @required this.isMe,
     @required this.type,
+    @required this.read,
   });
 
   @override
@@ -47,6 +49,8 @@ class _ChatBubbleState extends State<ChatBubble> {
   Widget build(BuildContext context) {
     final align =
         widget.isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start;
+    final calign =
+        widget.isMe ? MainAxisAlignment.end : MainAxisAlignment.start;
     final radius = widget.isMe
         ? BorderRadius.only(
             topLeft: Radius.circular(5.0),
@@ -98,25 +102,33 @@ class _ChatBubbleState extends State<ChatBubble> {
             ],
           ),
         ),
-        Padding(
-          padding: widget.isMe
-              ? EdgeInsets.only(
-                  right: 10.0,
-                  bottom: 10.0,
-                )
-              : EdgeInsets.only(
-                  left: 10.0,
-                  bottom: 10.0,
+        Row(
+          mainAxisAlignment: calign,
+          children: [
+            TextTime(
+              child: Text(
+                timeago.format(widget.time.toDate()),
+                style: TextStyle(
+                  color: Theme.of(context).textTheme.headline6.color,
+                  fontSize: 10.0,
                 ),
-          child: TextTime(
-            child: Text(
-              timeago.format(widget.time.toDate()),
-              style: TextStyle(
-                color: Theme.of(context).textTheme.headline6.color,
-                fontSize: 10.0,
               ),
             ),
-          ),
+            SizedBox(
+              width: 3,
+            ),
+            widget.isMe
+                ? widget.read == 0
+                    ? Icon(
+                        Icons.check,
+                        size: 10,
+                      )
+                    : Icon(
+                        Icons.done_all,
+                        size: 10,
+                      )
+                : Container(),
+          ],
         ),
       ],
     );

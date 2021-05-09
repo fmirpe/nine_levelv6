@@ -56,16 +56,16 @@ class UserPost extends StatelessWidget {
                     child: post.type == 1
                         ? CustomImage(
                             imageUrl: post?.mediaUrl ?? '',
-                            height: 320.0,
-                            fit: BoxFit.cover,
+                            height: MediaQuery.of(context).size.width, //300.0,
+                            fit: BoxFit.fill,
                             width: MediaQuery.of(context)
                                 .size
                                 .width, // double.infinity,
                           )
                         : CustomVideo(
                             imageUrl: post?.mediaUrl ?? '',
-                            height: 320.0,
-                            fit: BoxFit.cover,
+                            height: MediaQuery.of(context).size.width, //300.0,
+                            fit: BoxFit.fill,
                             width: MediaQuery.of(context)
                                 .size
                                 .width, // double.infinity,

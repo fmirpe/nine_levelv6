@@ -1,10 +1,11 @@
 import 'dart:async';
-import 'dart:math';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
+
 import 'package:nine_levelv6/controllers/OperationController.dart';
 import 'package:nine_levelv6/helpers/utils.dart';
 import 'package:nine_levelv6/videochats/home_page.dart';
@@ -324,8 +325,9 @@ class VideoCallScreenState extends State<VideoCallScreen> {
 
     if (isSomeOneJoinedCall) {
       Future.delayed(Duration(milliseconds: 300), () {
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => HomePage()));
+        Navigator.pop(context);
+        // Navigator.pushReplacement(
+        //     context, MaterialPageRoute(builder: (context) => HomePage()));
       });
     } else {
       showDialog(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:nine_levelv6/helpers/text_styles.dart';
 import 'package:nine_levelv6/helpers/utils.dart';
+import 'package:nine_levelv6/utils/constants.dart';
 import 'package:nine_levelv6/videochats/videocall_page.dart';
 
 class CreateRoomDialog extends StatefulWidget {
@@ -30,7 +31,9 @@ class _CreateRoomDialogState extends State<CreateRoomDialog> {
           ),
           Text(
             "Room id : " + roomId,
-            style: midTxtStyle.copyWith(color: const Color(0xFF1A1E78)),
+            style: midTxtStyle.copyWith(
+              color: Colors.white,
+            ),
           ),
           const SizedBox(
             height: 20,
@@ -41,7 +44,7 @@ class _CreateRoomDialogState extends State<CreateRoomDialog> {
               FlatButton(
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(6)),
-                color: const Color(0xFF1A1E78),
+                color: Constants.lightButtom,
                 onPressed: () {
                   shareToApps(roomId);
                 },
@@ -62,17 +65,19 @@ class _CreateRoomDialogState extends State<CreateRoomDialog> {
               FlatButton(
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(6)),
-                color: const Color(0xFF1A1E78),
+                color: Constants.lightButtom,
                 onPressed: () async {
                   bool isPermissionGranted =
                       await handlePermissionsForCall(context);
                   if (isPermissionGranted) {
                     Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => VideoCallScreen(
-                                  channelName: roomId,
-                                )));
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => VideoCallScreen(
+                          channelName: roomId,
+                        ),
+                      ),
+                    );
                   } else {
                     Get.snackbar("Failed",
                         "Microphone Permission Required for Video Call.",

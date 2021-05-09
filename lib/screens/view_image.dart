@@ -34,14 +34,15 @@ class _ViewImageState extends State<ViewImage> {
         child: buildImage(context),
       ),
       bottomNavigationBar: BottomAppBar(
-          elevation: 0.0,
-          color: Colors.transparent,
-          child: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Container(
-              height: 40.0,
-              width: MediaQuery.of(context).size.width,
-              child: Row(children: [
+        elevation: 0.0,
+        color: Colors.transparent,
+        child: Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Container(
+            height: 55.0,
+            width: MediaQuery.of(context).size.width,
+            child: Row(
+              children: [
                 Column(
                   children: [
                     Text(
@@ -60,9 +61,11 @@ class _ViewImageState extends State<ViewImage> {
                 ),
                 Spacer(),
                 buildLikeButton(),
-              ]),
+              ],
             ),
-          )),
+          ),
+        ),
+      ),
     );
   }
 

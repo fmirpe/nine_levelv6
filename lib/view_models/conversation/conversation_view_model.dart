@@ -34,6 +34,10 @@ class ConversationViewModel extends ChangeNotifier {
     chatService.setUserRead(chatId, user, count);
   }
 
+  Future<int> getReadCount(String chatId, var user) async {
+    return await chatService.getUserRead(chatId, user);
+  }
+
   setUserTyping(String chatId, var user, bool typing) {
     chatService.setUserTyping(chatId, user, typing);
   }

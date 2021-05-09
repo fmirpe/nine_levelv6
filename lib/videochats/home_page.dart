@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:nine_levelv6/helpers/text_styles.dart';
+import 'package:nine_levelv6/utils/constants.dart';
 import 'package:nine_levelv6/videochats/dialogs/create_room.dart';
 import 'package:nine_levelv6/videochats/dialogs/join_room.dart';
 
@@ -8,14 +9,26 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1A1E78),
+      //backgroundColor: const Color(0xFF1A1E78),
+      backgroundColor: Constants.lightButtom,
+      appBar: AppBar(
+        //scaffoldKey: widget.scaffoldKey,
+        title: Text(
+          'N9 Meeting',
+        ),
+        leading: BackButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            margin: const EdgeInsets.only(top: 60, left: 30),
+            margin: const EdgeInsets.only(top: 40, left: 30),
             padding: const EdgeInsets.only(
-              right: 20,
+              right: 10,
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -23,12 +36,12 @@ class HomePage extends StatelessWidget {
               children: [
                 Text(
                   "N9 Meeting",
-                  style: largeTxtStyle.copyWith(fontWeight: FontWeight.w600),
+                  style: largeTxtStyle.copyWith(fontWeight: FontWeight.w400),
                 ),
                 const SizedBox(height: 10),
                 Text(
                   "Easy connect with friends via video call.",
-                  style: largeTxtStyle.copyWith(fontWeight: FontWeight.w600),
+                  style: largeTxtStyle.copyWith(fontWeight: FontWeight.w400),
                 ),
               ],
             ),
@@ -80,12 +93,14 @@ class HomePage extends StatelessWidget {
                                   Text(
                                     "Create Room",
                                     style: largeTxtStyle.copyWith(
-                                        color: const Color(0xFF1A1E78)),
+                                      color: Colors.black,
+                                    ),
                                   ),
                                   Text(
                                     "create a unique agora room and ask others to join the same.",
                                     style: regularTxtStyle.copyWith(
-                                        color: const Color(0xFF1A1E78)),
+                                      color: Colors.black,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -98,10 +113,11 @@ class HomePage extends StatelessWidget {
                   Flexible(
                     flex: 2,
                     child: Container(
-                        width: MediaQuery.of(context).size.width,
-                        height: 2,
-                        margin: const EdgeInsets.all(20),
-                        color: const Color(0xFF1A1E78)),
+                      width: MediaQuery.of(context).size.width,
+                      height: 2,
+                      margin: const EdgeInsets.all(20),
+                      color: Colors.black,
+                    ),
                   ),
                   Flexible(
                     flex: 4,
@@ -119,11 +135,12 @@ class HomePage extends StatelessWidget {
                         child: Row(
                           children: [
                             Flexible(
-                                flex: 6,
-                                child: Image.asset(
-                                  "assets/images/join_meeting_vector.png",
-                                  fit: BoxFit.fill,
-                                )),
+                              flex: 6,
+                              child: Image.asset(
+                                "assets/images/join_meeting_vector.png",
+                                fit: BoxFit.fill,
+                              ),
+                            ),
                             Flexible(
                               flex: 4,
                               child: Column(
@@ -134,12 +151,14 @@ class HomePage extends StatelessWidget {
                                   Text(
                                     "Join Room",
                                     style: largeTxtStyle.copyWith(
-                                        color: const Color(0xFF1A1E78)),
+                                      color: Colors.black,
+                                    ),
                                   ),
                                   Text(
                                     "Join a agora room created by your friend.",
                                     style: regularTxtStyle.copyWith(
-                                        color: const Color(0xFF1A1E78)),
+                                      color: Colors.black,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -155,16 +174,16 @@ class HomePage extends StatelessWidget {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: const Color(0xFF1A1E78),
-        child: Icon(Icons.thumb_up_alt_outlined),
-        onPressed: () {
-          Get.snackbar("Liked ?", "Please ★ My Project On Git :) ",
-              backgroundColor: Colors.white,
-              colorText: Color(0xFF1A1E78),
-              snackPosition: SnackPosition.BOTTOM);
-        },
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   backgroundColor: const Color(0xFF1A1E78),
+      //   child: Icon(Icons.thumb_up_alt_outlined),
+      //   onPressed: () {
+      //     Get.snackbar("Liked ?", "Please ★ My Project On Git :) ",
+      //         backgroundColor: Colors.white,
+      //         colorText: Color(0xFF1A1E78),
+      //         snackPosition: SnackPosition.BOTTOM);
+      //   },
+      // ),
     );
   }
 }

@@ -11,6 +11,7 @@ import 'package:nine_levelv6/pages/profile.dart';
 import 'package:nine_levelv6/pages/search.dart';
 import 'package:nine_levelv6/pages/feeds.dart';
 import 'package:nine_levelv6/pages/travel.dart';
+import 'package:nine_levelv6/screens/callscreens/pickup/pickup_layout.dart';
 import 'package:nine_levelv6/utils/constants.dart';
 import 'package:nine_levelv6/utils/firebase.dart';
 
@@ -57,93 +58,95 @@ class _TabScreenState extends State<TabScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: Drawer(
-        child: ListView(
-          children: [
-            _createHeader(),
-            ListTile(
-              title: Text('Travel'),
-              onTap: () {
-                Navigator.of(context).push(
-                  CupertinoPageRoute(
-                    builder: (_) => TravelPage(),
-                  ),
-                );
-              },
-            ),
-            ListTile(
-              title: Text('Coaching'),
-              onTap: () {
-                Navigator.of(context).push(
-                  CupertinoPageRoute(
-                    builder: (_) => CoachingPage(),
-                  ),
-                );
-              },
-            ),
-            ListTile(
-              title: Text('Driver'),
-              onTap: () {
-                Navigator.of(context).push(
-                  CupertinoPageRoute(
-                    builder: (_) => DriverPage(),
-                  ),
-                );
-              },
-            ),
-            ListTile(
-              title: Text('Market Place'),
-              onTap: () {
-                Navigator.of(context).push(
-                  CupertinoPageRoute(
-                    builder: (_) => MarketPlacePage(),
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
-      body: PageTransitionSwitcher(
-        transitionBuilder: (
-          Widget child,
-          Animation<double> animation,
-          Animation<double> secondaryAnimation,
-        ) {
-          return FadeThroughTransition(
-            animation: animation,
-            secondaryAnimation: secondaryAnimation,
-            child: child,
-          );
-        },
-        child: pages[_page]['page'],
-      ),
-      bottomNavigationBar: BottomAppBar(
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            SizedBox(width: 5),
-            for (Map item in pages)
-              item['index'] == 2
-                  ? buildFab()
-                  : Padding(
-                      padding: const EdgeInsets.only(top: 5.0),
-                      child: IconButton(
-                        icon: Icon(
-                          item['icon'],
-                          color: item['index'] != _page
-                              ? Colors.grey
-                              : Constants.lightButtom,
-                          size: 20.0,
-                        ),
-                        onPressed: () => navigationTapped(item['index']),
-                      ),
+    return PickupLayout(
+      scaffold: Scaffold(
+        drawer: Drawer(
+          child: ListView(
+            children: [
+              _createHeader(),
+              ListTile(
+                title: Text('Travel'),
+                onTap: () {
+                  Navigator.of(context).push(
+                    CupertinoPageRoute(
+                      builder: (_) => TravelPage(),
                     ),
-            SizedBox(width: 5),
-          ],
+                  );
+                },
+              ),
+              ListTile(
+                title: Text('Coaching'),
+                onTap: () {
+                  Navigator.of(context).push(
+                    CupertinoPageRoute(
+                      builder: (_) => CoachingPage(),
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                title: Text('Driver'),
+                onTap: () {
+                  Navigator.of(context).push(
+                    CupertinoPageRoute(
+                      builder: (_) => DriverPage(),
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                title: Text('Market Place'),
+                onTap: () {
+                  Navigator.of(context).push(
+                    CupertinoPageRoute(
+                      builder: (_) => MarketPlacePage(),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+        body: PageTransitionSwitcher(
+          transitionBuilder: (
+            Widget child,
+            Animation<double> animation,
+            Animation<double> secondaryAnimation,
+          ) {
+            return FadeThroughTransition(
+              animation: animation,
+              secondaryAnimation: secondaryAnimation,
+              child: child,
+            );
+          },
+          child: pages[_page]['page'],
+        ),
+        bottomNavigationBar: BottomAppBar(
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(width: 5),
+              for (Map item in pages)
+                item['index'] == 2
+                    ? buildFab()
+                    : Padding(
+                        padding: const EdgeInsets.only(top: 5.0),
+                        child: IconButton(
+                          icon: Icon(
+                            item['icon'],
+                            color: item['index'] != _page
+                                ? Colors.grey
+                                : Constants.lightButtom,
+                            size: 20.0,
+                          ),
+                          onPressed: () => navigationTapped(item['index']),
+                        ),
+                      ),
+              SizedBox(width: 5),
+            ],
+          ),
         ),
       ),
     );

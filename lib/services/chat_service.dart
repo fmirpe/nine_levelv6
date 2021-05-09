@@ -46,6 +46,21 @@ class ChatService {
     await chatRef.doc(chatId).update({'reads': reads});
   }
 
+  Future<int> getUserRead(String chatId, String user) async {
+    DocumentSnapshot snap = await chatRef.doc(chatId).get();
+    Map reads = {};
+    var data = snap.data();
+    if (data != null) {
+      if (data.containsKey("reads")) {
+        reads = snap.data()['reads'];
+      } else {
+        return 0;
+      }
+    }
+    int count = reads[user] == null ? 0 : reads[user];
+    return count;
+  }
+
   setUserTyping(String chatId, User user, bool userTyping) async {
     DocumentSnapshot snap = await chatRef.doc(chatId).get();
     Map typing = {};
