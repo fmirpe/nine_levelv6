@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
@@ -133,13 +135,16 @@ class _ConversationState extends State<Conversation> {
                           itemBuilder: (BuildContext context, int index) {
                             Message message = Message.fromJson(
                                 messages.reversed.toList()[index].data());
-                            var reead = 0; //_readMessage();
+                            Timer(Duration(seconds: 10), () async {
+                              await viewModel.readMessage(
+                                  chatId, widget.userId);
+                            });
                             return ChatBubble(
                               message: '${message.content}',
                               time: message?.time,
                               isMe: message?.senderUid == user?.uid,
                               type: message?.type,
-                              read: reead,
+                              read: message?.isRead,
                             );
                           },
                         );
@@ -211,14 +216,6 @@ class _ConversationState extends State<Conversation> {
         ),
       );
     });
-  }
-
-  _readMessage() async {
-    var viewModel = Provider.of<ConversationViewModel>(context, listen: false);
-    return await viewModel.getReadCount(
-      widget.chatId,
-      widget.userId,
-    );
   }
 
   _buildOnlineText(
@@ -356,6 +353,8 @@ class _ConversationState extends State<Conversation> {
       senderUid: user?.uid,
       type: isImage ? MessageType.IMAGE : MessageType.TEXT,
       time: Timestamp.now(),
+      isRead: false,
+      timeisRead: Timestamp.now(),
     );
 
     if (msg.isNotEmpty) {

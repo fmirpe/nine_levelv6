@@ -6,12 +6,16 @@ class Message {
   String senderUid;
   MessageType type;
   Timestamp time;
+  bool isRead;
+  Timestamp timeisRead;
 
   Message({
     this.content,
     this.senderUid,
     this.type,
     this.time,
+    this.isRead,
+    this.timeisRead,
   });
 
   Message.fromJson(Map<String, dynamic> json) {
@@ -23,6 +27,8 @@ class Message {
       type = MessageType.IMAGE;
     }
     time = json['time'];
+    isRead = json['isRead'];
+    timeisRead = json['timeisRead'];
   }
 
   Map<String, dynamic> toJson() {
@@ -35,6 +41,8 @@ class Message {
       data['type'] = 'image';
     }
     data['time'] = this.time;
+    data['isRead'] = this.isRead;
+    data['timeisRead'] = this.timeisRead;
     return data;
   }
 }

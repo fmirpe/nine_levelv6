@@ -10,7 +10,7 @@ class ChatBubble extends StatefulWidget {
   final MessageType type;
   final Timestamp time;
   final bool isMe;
-  final int read;
+  final bool read;
 
   ChatBubble({
     @required this.message,
@@ -118,7 +118,7 @@ class _ChatBubbleState extends State<ChatBubble> {
               width: 3,
             ),
             widget.isMe
-                ? widget.read == 0
+                ? !widget.read
                     ? Icon(
                         Icons.check,
                         size: 10,

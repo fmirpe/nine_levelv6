@@ -30,6 +30,10 @@ class ConversationViewModel extends ChangeNotifier {
     return newChatId;
   }
 
+  readMessage(String chatId, String user) async {
+    await chatService.readMessage(chatId, user);
+  }
+
   setReadCount(String chatId, var user, int count) {
     chatService.setUserRead(chatId, user, count);
   }

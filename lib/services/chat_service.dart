@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:nine_levelv6/models/message.dart';
+import 'package:nine_levelv6/models/user.dart';
 import 'package:nine_levelv6/utils/firebase.dart';
 
 class ChatService {
@@ -30,6 +31,29 @@ class ChatService {
     await uploadTask.whenComplete(() => null);
     String imageUrl = await storageReference.getDownloadURL();
     return imageUrl;
+  }
+
+  readMessage(String chatId, String user) async {
+    var snapusuario = await usersRef.doc(user).get();
+
+    var usuario = UserModel.fromJson(snapusuario.data());
+    if (usuario.isOnline) {
+      var messageunread = await chatRef
+          .doc(chatId)
+          .collection("messages")
+          .where("senderUid", isEqualTo: usuario.id)
+          .where("isRead", isEqualTo: false)
+          .get();
+
+      for (var i = 0; i < messageunread.docs.length; i++) {
+        var messageId = messageunread.docs[i].id;
+        await chatRef
+            .doc(chatId)
+            .collection("messages")
+            .doc(messageId)
+            .update({'isRead': true, 'timeisRead': Timestamp.now()});
+      }
+    }
   }
 
   setUserRead(String chatId, User user, int count) async {
