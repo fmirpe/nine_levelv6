@@ -68,7 +68,7 @@ class Timeline extends StatelessWidget {
               internetChecker();
               PostModel posts = PostModel.fromJson(snapshot.data());
               return Padding(
-                padding: const EdgeInsets.only(bottom: 12.0),
+                padding: const EdgeInsets.only(bottom: 10.0),
                 //  child: Posts(post: posts),
                 child: UserPost(post: posts),
               );

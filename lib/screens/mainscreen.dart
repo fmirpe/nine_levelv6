@@ -1,7 +1,10 @@
 import 'package:animations/animations.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:nine_levelv6/chats/recent_chats.dart';
 import 'package:nine_levelv6/components/fab_container.dart';
 import 'package:nine_levelv6/pages/coaching.dart';
 import 'package:nine_levelv6/pages/driver.dart';
@@ -14,6 +17,9 @@ import 'package:nine_levelv6/pages/travel.dart';
 import 'package:nine_levelv6/screens/callscreens/pickup/pickup_layout.dart';
 import 'package:nine_levelv6/utils/constants.dart';
 import 'package:nine_levelv6/utils/firebase.dart';
+import 'package:nine_levelv6/view_models/user/user_view_model.dart';
+import 'package:package_info/package_info.dart';
+import 'package:provider/provider.dart';
 
 class TabScreen extends StatefulWidget {
   @override
@@ -22,6 +28,13 @@ class TabScreen extends StatefulWidget {
 
 class _TabScreenState extends State<TabScreen> {
   int _page = 0;
+  String version = "1.0.0";
+  String buildVersion = "7";
+
+  FirebaseMessaging firebaseMessaging = FirebaseMessaging();
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+  bool confignotification = false;
 
   List pages = [
     {
@@ -55,6 +68,123 @@ class _TabScreenState extends State<TabScreen> {
       'index': 4,
     },
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    cargaDatos();
+
+    if (!confignotification) {
+      registerNotification();
+      configLocalNotification();
+    }
+  }
+
+  void configLocalNotification() {
+    print('configLocalNotification');
+    var initializationSettingsAndroid =
+        new AndroidInitializationSettings('@mipmap/launcher_icon');
+    var initializationSettingsIOS = new IOSInitializationSettings();
+    var initializationSettings = new InitializationSettings(
+        android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
+    flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
+    flutterLocalNotificationsPlugin.initialize(initializationSettings,
+        onSelectNotification: onSelectNotification);
+  }
+
+  Future onSelectNotification(payload) async {
+    print('onSelectNotification');
+    // Fluttertoast.showToast(
+    //     msg: "New Message",
+    //     durationTime: 5,
+    //     textColor: Colors.black,
+    //     backgroundColor: Colors.white);
+    // if (listmessage != null) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Chats(),
+      ),
+    );
+    // }
+  }
+
+  void registerNotification() {
+    print('registerNotification');
+    firebaseMessaging.requestNotificationPermissions();
+
+    firebaseMessaging.configure(
+        onMessage: (Map<String, dynamic> message) async {
+      print('onMessage: $message');
+      //_showNotificationWithDefaultSound(message['notification']);
+      final authService = Provider.of<UserViewModel>(context, listen: false);
+      //String peerId = message['data']['peerId'];
+      //String peerAvatar = message['data']['peerPhotoUrl'];
+      print(firebaseAuth.currentUser.uid);
+      print('Mensaje');
+
+      _showNotificationWithDefaultSound(message);
+
+      // Platform.isAndroid
+      //     ? showNotification(message['notification'])
+      //     : showNotification(message['aps']['alert']);
+      return;
+    }, onResume: (Map<String, dynamic> message) {
+      print('onResume: $message');
+      return;
+    }, onLaunch: (Map<String, dynamic> message) {
+      print('onLaunch: $message');
+      return;
+    });
+
+    // firebaseMessaging.requestNotificationPermissions(
+    //     const IosNotificationSettings(sound: true, badge: true, alert: true));
+    // firebaseMessaging.onIosSettingsRegistered
+    //     .listen((IosNotificationSettings settings) {
+    //   print("Settings registered: $settings");
+    // });
+
+    firebaseMessaging.getToken().then((token) {
+      final authService = Provider.of<UserViewModel>(context, listen: false);
+      print('token: $token');
+      authService.updateToken(token);
+    });
+  }
+
+  void _showNotificationWithDefaultSound(message) async {
+    print('_showNotificationWithDefaultSound');
+    var androidPlatformChannelSpecifics = new AndroidNotificationDetails(
+        'n9b6', 'N9-Chat', 'Chat Nine Level Beta 6',
+        importance: Importance.high,
+        priority: Priority.high,
+        playSound: true,
+        enableVibration: true,
+        enableLights: true);
+    var iOSPlatformChannelSpecifics = new IOSNotificationDetails();
+    var platformChannelSpecifics = new NotificationDetails(
+        android: androidPlatformChannelSpecifics,
+        iOS: iOSPlatformChannelSpecifics);
+    await flutterLocalNotificationsPlugin.show(
+      0,
+      message['notification']['title'].toString(),
+      message['notification']['body'].toString(),
+      platformChannelSpecifics,
+      payload: 'Default_Sound',
+    );
+
+    print('Fin _showNotificationWithDefaultSound');
+  }
+
+  cargaDatos() async {
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+
+    //String appName = packageInfo.appName;
+    //String packageName = packageInfo.packageName;
+    print(packageInfo.version);
+    print(packageInfo.buildNumber);
+    version = packageInfo.version;
+    buildVersion = packageInfo.buildNumber;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -181,7 +311,7 @@ class _TabScreenState extends State<TabScreen> {
                       fontWeight: FontWeight.w500),
                 ),
                 Text(
-                  "v1.0.0",
+                  "v$version+$buildVersion",
                   style: TextStyle(
                       color: Colors.white,
                       fontSize: 8.0,

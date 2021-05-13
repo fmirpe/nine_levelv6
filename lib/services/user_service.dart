@@ -19,6 +19,23 @@ class UserService extends Service {
     }
   }
 
+  updateToken(String token) {
+    var user = firebaseAuth.currentUser;
+    if (user != null) {
+      usersRef.doc(user.uid).update({'Token': token});
+    }
+  }
+
+  updateMoneyUser(String userId, int money) async {
+    DocumentSnapshot doc = await usersRef.doc(userId).get();
+    var users = UserModel.fromJson(doc.data());
+    users?.money += money;
+
+    await usersRef.doc(userId).update({
+      'money': users?.money,
+    });
+  }
+
   updateProfile(
       {File image, String username, String bio, String country}) async {
     DocumentSnapshot doc = await usersRef.doc(currentUid()).get();

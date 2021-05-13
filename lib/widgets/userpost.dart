@@ -15,25 +15,83 @@ import 'package:nine_levelv6/screens/view_image.dart';
 import 'package:nine_levelv6/utils/firebase.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
-class UserPost extends StatelessWidget {
+import 'package:flutter_google_ad_manager/flutter_google_ad_manager.dart';
+
+class UserPost extends StatefulWidget {
   final PostModel post;
 
   UserPost({this.post});
+
+  @override
+  _UserPostState createState() => _UserPostState();
+}
+
+class _UserPostState extends State<UserPost> {
   final DateTime timestamp = DateTime.now();
+
+  DFPRewardedAd _rewardedAd;
 
   currentUserId() {
     return firebaseAuth.currentUser.uid;
   }
 
   @override
+  void initState() {
+    super.initState();
+    // _rewardedAd = DFPRewardedAd(
+    //   isDevelop: true,
+    //   adUnitId: "ca-app-pub-6685643423012004~3288192837",
+    //   onAdLoaded: () {
+    //     print('rewardedAd onAdLoaded');
+    //   },
+    //   onAdFailedToLoad: (errorCode) {
+    //     print('rewardedAd onAdFailedToLoad: errorCode:$errorCode');
+    //   },
+    //   onAdOpened: () {
+    //     print('rewardedAd onAdOpened');
+    //   },
+    //   onAdClosed: () {
+    //     print('rewardedAd onAdClosed');
+    //     _rewardedAd.load();
+    //   },
+    //   onAdLeftApplication: () {
+    //     print('rewardedAd onAdLeftApplication');
+    //   },
+    //   onRewarded: (String type, int amount) async {
+    //     print('rewardedAd onRewarded: type:$type amount:$amount');
+    //     var ownerId = widget.post.ownerId;
+    //     print(ownerId);
+    //     await updateMoneyUser(ownerId, amount);
+
+    //     var userId = currentUserId();
+    //     print(userId);
+    //     await updateMoneyUser(userId, amount);
+    //   },
+    //   onVideoStarted: () {
+    //     print('rewardedAd onVideoStarted');
+    //   },
+    //   onVideoCompleted: () {
+    //     print('rewardedAd onVideoCompleted');
+    //   },
+    // );
+    // _rewardedAd.load();
+  }
+
+  @override
+  void dispose() {
+    _rewardedAd.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return CustomCard(
       onTap: null,
-      borderRadius: BorderRadius.circular(10.0),
+      borderRadius: BorderRadius.circular(5.0),
       child: OpenContainer(
         //transitionType: ContainerTransitionType.fade,
         openBuilder: (BuildContext context, VoidCallback _) {
-          return ViewImage(post: post);
+          return ViewImage(post: widget.post);
         },
         closedElevation: 0.0,
         closedShape: const RoundedRectangleBorder(
@@ -53,19 +111,19 @@ class UserPost extends StatelessWidget {
                       topLeft: Radius.circular(5.0),
                       topRight: Radius.circular(5.0),
                     ),
-                    child: post.type == 1
+                    child: widget.post.type == 1
                         ? CustomImage(
-                            imageUrl: post?.mediaUrl ?? '',
+                            imageUrl: widget.post?.mediaUrl ?? '',
                             height: MediaQuery.of(context).size.width, //300.0,
-                            fit: BoxFit.fill,
+                            fit: BoxFit.cover,
                             width: MediaQuery.of(context)
                                 .size
                                 .width, // double.infinity,
                           )
                         : CustomVideo(
-                            imageUrl: post?.mediaUrl ?? '',
+                            imageUrl: widget.post?.mediaUrl ?? '',
                             height: MediaQuery.of(context).size.width, //300.0,
-                            fit: BoxFit.fill,
+                            fit: BoxFit.cover,
                             width: MediaQuery.of(context)
                                 .size
                                 .width, // double.infinity,
@@ -86,7 +144,8 @@ class UserPost extends StatelessWidget {
                                 onTap: () {
                                   Navigator.of(context).push(
                                     CupertinoPageRoute(
-                                      builder: (_) => Comments(post: post),
+                                      builder: (_) =>
+                                          Comments(post: widget.post),
                                     ),
                                   );
                                 },
@@ -105,7 +164,8 @@ class UserPost extends StatelessWidget {
                                 padding: const EdgeInsets.only(left: 5.0),
                                 child: StreamBuilder(
                                   stream: likesRef
-                                      .where('postId', isEqualTo: post.postId)
+                                      .where('postId',
+                                          isEqualTo: widget.post.postId)
                                       .snapshots(),
                                   builder: (context,
                                       AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -124,7 +184,7 @@ class UserPost extends StatelessWidget {
                             SizedBox(width: 5.0),
                             StreamBuilder(
                               stream: commentRef
-                                  .doc(post.postId)
+                                  .doc(widget.post.postId)
                                   .collection("comments")
                                   .snapshots(),
                               builder: (context,
@@ -142,12 +202,12 @@ class UserPost extends StatelessWidget {
                           ],
                         ),
                         Visibility(
-                          visible: post.description != null &&
-                              post.description.toString().isNotEmpty,
+                          visible: widget.post.description != null &&
+                              widget.post.description.toString().isNotEmpty,
                           child: Padding(
                             padding: const EdgeInsets.only(left: 5.0, top: 3.0),
                             child: Text(
-                              '${post.description}',
+                              '${widget.post.description}',
                               style: TextStyle(
                                 color:
                                     Theme.of(context).textTheme.caption.color,
@@ -160,7 +220,8 @@ class UserPost extends StatelessWidget {
                         SizedBox(height: 3.0),
                         Padding(
                           padding: const EdgeInsets.all(3.0),
-                          child: Text(timeago.format(post.timestamp.toDate()),
+                          child: Text(
+                              timeago.format(widget.post.timestamp.toDate()),
                               style: TextStyle(fontSize: 10.0)),
                         ),
                         // SizedBox(height: 5.0),
@@ -180,7 +241,7 @@ class UserPost extends StatelessWidget {
   buildLikeButton() {
     return StreamBuilder(
       stream: likesRef
-          .where('postId', isEqualTo: post.postId)
+          .where('postId', isEqualTo: widget.post.postId)
           .where('userId', isEqualTo: currentUserId())
           .snapshots(),
       builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -191,7 +252,7 @@ class UserPost extends StatelessWidget {
               if (docs.isEmpty) {
                 likesRef.add({
                   'userId': currentUserId(),
-                  'postId': post.postId,
+                  'postId': widget.post.postId,
                   'dateCreated': Timestamp.now(),
                 });
                 addLikesToNotification();
@@ -215,38 +276,48 @@ class UserPost extends StatelessWidget {
     );
   }
 
+  updateMoneyUser(String userId, int money) async {
+    DocumentSnapshot doc = await usersRef.doc(userId).get();
+    var users = UserModel.fromJson(doc.data());
+    users?.money += money;
+
+    await usersRef.doc(userId).update({
+      'money': users?.money,
+    });
+  }
+
   addLikesToNotification() async {
-    bool isNotMe = currentUserId() != post.ownerId;
+    bool isNotMe = currentUserId() != widget.post.ownerId;
 
     if (isNotMe) {
       DocumentSnapshot doc = await usersRef.doc(currentUserId()).get();
       user = UserModel.fromJson(doc.data());
       notificationRef
-          .doc(post.ownerId)
+          .doc(widget.post.ownerId)
           .collection('notifications')
-          .doc(post.postId)
+          .doc(widget.post.postId)
           .set({
         "type": "like",
         "username": user.username,
         "userId": currentUserId(),
         "userDp": user.photoUrl,
-        "postId": post.postId,
-        "mediaUrl": post.mediaUrl,
+        "postId": widget.post.postId,
+        "mediaUrl": widget.post.mediaUrl,
         "timestamp": timestamp,
       });
     }
   }
 
   removeLikeFromNotification() async {
-    bool isNotMe = currentUserId() != post.ownerId;
+    bool isNotMe = currentUserId() != widget.post.ownerId;
 
     if (isNotMe) {
       DocumentSnapshot doc = await usersRef.doc(currentUserId()).get();
       user = UserModel.fromJson(doc.data());
       notificationRef
-          .doc(post.ownerId)
+          .doc(widget.post.ownerId)
           .collection('notifications')
-          .doc(post.postId)
+          .doc(widget.post.postId)
           .get()
           .then((doc) => {
                 if (doc.exists) {doc.reference.delete()}
@@ -276,23 +347,11 @@ class UserPost extends StatelessWidget {
       ),
     );
   }
-  // buildCommentsCount(BuildContext context, int count) {
-  //   return Padding(
-  //     padding: const EdgeInsets.only(left: 7.0),
-  //     child: Text(
-  //       '$count comments',
-  //       style: TextStyle(
-  //         color: Theme.of(context).textTheme.caption.color.withOpacity(0.4),
-  //         fontSize: 10.0,
-  //       ),
-  //     ),
-  //   );
-  // }
 
   buildUser(BuildContext context) {
-    bool isMe = currentUserId() == post.ownerId;
+    bool isMe = currentUserId() == widget.post.ownerId;
     return StreamBuilder(
-      stream: usersRef.doc(post.ownerId).snapshots(),
+      stream: usersRef.doc(widget.post.ownerId).snapshots(),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           DocumentSnapshot snap = snapshot.data;
@@ -313,7 +372,7 @@ class UserPost extends StatelessWidget {
                 child: GestureDetector(
                   onTap: () => showProfile(context, profileId: user?.id),
                   child: Padding(
-                    padding: const EdgeInsets.only(left: 10.0),
+                    padding: const EdgeInsets.only(left: 8.0),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
@@ -334,22 +393,36 @@ class UserPost extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              '${post.username}',
+                              '${widget.post.username}',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: Color(0xff4D4D4D),
+                                fontSize: 12.0,
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
                             Text(
-                              '${post.location == null ? 'Nine Level' : post.location}',
+                              '${widget.post.location == null ? '' : widget.post.location}',
                               style: TextStyle(
-                                fontSize: 10.0,
+                                fontSize: 8.0,
                                 color: Color(0xff4D4D4D),
                               ),
                             ),
                           ],
                         ),
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width - 170,
+                        ),
+                        // GestureDetector(
+                        //   child: Icon(
+                        //     Icons.favorite,
+                        //     size: 20,
+                        //     color: Colors.amberAccent[400],
+                        //   ),
+                        //   onTap: () {
+                        //     _rewardedAd.show();
+                        //   },
+                        // ),
                       ],
                     ),
                   ),

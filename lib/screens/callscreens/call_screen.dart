@@ -298,11 +298,11 @@ class _CallScreenState extends State<CallScreen> {
     AgoraRtcEngine.muteLocalAudioStream(muted);
   }
 
-  void _onVideoMute() {
+  void _onVideoMute() async {
     setState(() {
       mutedvideo = !mutedvideo;
     });
-    AgoraRtcEngine.muteLocalVideoStream(mutedvideo);
+    await AgoraRtcEngine.enableLocalVideo(!mutedvideo);
   }
 
   void _onSwitchCamera() {
@@ -313,22 +313,10 @@ class _CallScreenState extends State<CallScreen> {
   Widget _toolbar() {
     return Container(
       alignment: Alignment.bottomCenter,
-      padding: const EdgeInsets.symmetric(vertical: 15),
+      padding: const EdgeInsets.symmetric(vertical: 5),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          RawMaterialButton(
-            onPressed: _onToggleMute,
-            child: Icon(
-              !muted ? Icons.mic : Icons.mic_off,
-              color: !muted ? Colors.white : Colors.blueAccent,
-              size: 20.0,
-            ),
-            shape: CircleBorder(),
-            elevation: 2.0,
-            fillColor: !muted ? Colors.blueAccent : Colors.white,
-            padding: const EdgeInsets.all(12.0),
-          ),
           RawMaterialButton(
             onPressed: () => callMethods.endCall(
               call: widget.call,
@@ -344,6 +332,18 @@ class _CallScreenState extends State<CallScreen> {
             padding: const EdgeInsets.all(15.0),
           ),
           RawMaterialButton(
+            onPressed: _onToggleMute,
+            child: Icon(
+              !muted ? Icons.mic : Icons.mic_off,
+              color: !muted ? Colors.white : Colors.blueAccent,
+              size: 20.0,
+            ),
+            shape: CircleBorder(),
+            elevation: 2.0,
+            fillColor: !muted ? Colors.blueAccent : Colors.white,
+            padding: const EdgeInsets.all(12.0),
+          ),
+          RawMaterialButton(
             onPressed: _onSwitchCamera,
             child: Icon(
               Icons.switch_camera,
@@ -355,18 +355,18 @@ class _CallScreenState extends State<CallScreen> {
             fillColor: Colors.white,
             padding: const EdgeInsets.all(12.0),
           ),
-          // RawMaterialButton(
-          //   onPressed: _onVideoMute,
-          //   child: Icon(
-          //     !mutedvideo ? Icons.videocam : Icons.videocam_off,
-          //     color: !mutedvideo ? Colors.white : Colors.blueAccent,
-          //     size: 20.0,
-          //   ),
-          //   shape: CircleBorder(),
-          //   elevation: 2.0,
-          //   fillColor: !mutedvideo ? Colors.blueAccent : Colors.white,
-          //   padding: const EdgeInsets.all(12.0),
-          // )
+          RawMaterialButton(
+            onPressed: _onVideoMute,
+            child: Icon(
+              !mutedvideo ? Icons.videocam : Icons.videocam_off,
+              color: !mutedvideo ? Colors.white : Colors.blueAccent,
+              size: 20.0,
+            ),
+            shape: CircleBorder(),
+            elevation: 2.0,
+            fillColor: !mutedvideo ? Colors.blueAccent : Colors.white,
+            padding: const EdgeInsets.all(12.0),
+          )
         ],
       ),
     );

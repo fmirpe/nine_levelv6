@@ -4,6 +4,7 @@ import 'package:nine_levelv6/models/enum/message_type.dart';
 class Message {
   String content;
   String senderUid;
+  String receiverUid;
   MessageType type;
   Timestamp time;
   bool isRead;
@@ -12,6 +13,7 @@ class Message {
   Message({
     this.content,
     this.senderUid,
+    this.receiverUid,
     this.type,
     this.time,
     this.isRead,
@@ -21,6 +23,7 @@ class Message {
   Message.fromJson(Map<String, dynamic> json) {
     content = json['content'];
     senderUid = json['senderUid'];
+    receiverUid = json['receiverUid'];
     if (json['type'] == 'text') {
       type = MessageType.TEXT;
     } else {
@@ -35,6 +38,7 @@ class Message {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['content'] = this.content;
     data['senderUid'] = this.senderUid;
+    data['receiverUid'] = this.receiverUid;
     if (this.type == MessageType.TEXT) {
       data['type'] = 'text';
     } else {

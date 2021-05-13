@@ -37,22 +37,20 @@ class ChatService {
     var snapusuario = await usersRef.doc(user).get();
 
     var usuario = UserModel.fromJson(snapusuario.data());
-    if (usuario.isOnline) {
-      var messageunread = await chatRef
+    var messageunread = await chatRef
+        .doc(chatId)
+        .collection("messages")
+        .where("receiverUid", isEqualTo: usuario.id)
+        .where("isRead", isEqualTo: false)
+        .get();
+
+    for (var i = 0; i < messageunread.docs.length; i++) {
+      var messageId = messageunread.docs[i].id;
+      await chatRef
           .doc(chatId)
           .collection("messages")
-          .where("senderUid", isEqualTo: usuario.id)
-          .where("isRead", isEqualTo: false)
-          .get();
-
-      for (var i = 0; i < messageunread.docs.length; i++) {
-        var messageId = messageunread.docs[i].id;
-        await chatRef
-            .doc(chatId)
-            .collection("messages")
-            .doc(messageId)
-            .update({'isRead': true, 'timeisRead': Timestamp.now()});
-      }
+          .doc(messageId)
+          .update({'isRead': true, 'timeisRead': Timestamp.now()});
     }
   }
 
@@ -64,6 +62,8 @@ class ChatService {
       if (data.containsKey("reads")) {
         reads = snap.data()['reads'];
       }
+    } else {
+      return;
     }
 
     reads[user?.uid] = count;
@@ -90,9 +90,13 @@ class ChatService {
     Map typing = {};
     var data = snap.data();
     if (data != null) {
-      if (data.containsKey("reads")) {
+      if (data.containsKey("typing")) {
         typing = snap.data()['typing'];
+      } else {
+        return;
       }
+    } else {
+      return;
     }
 
     typing[user?.uid] = userTyping;

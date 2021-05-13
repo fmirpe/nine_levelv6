@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:nine_levelv6/pages/search.dart';
 import 'package:nine_levelv6/screens/callscreens/pickup/pickup_layout.dart';
 import 'package:provider/provider.dart';
 import 'package:nine_levelv6/components/chat_item.dart';
@@ -15,23 +17,27 @@ class Chats extends StatelessWidget {
     UserViewModel viewModel =
         Provider.of<UserViewModel>(context, listen: false);
     viewModel.setUser();
+    var user = viewModel.user;
     return PickupLayout(
       scaffold: Scaffold(
         appBar: AppBar(
           title: Text("Chats"),
-          // actions: [
-          //   Padding(
-          //     padding: const EdgeInsets.all(15.0),
-          //     child: GestureDetector(
-          //       //Feature coming soon
-          //       onTap: (){},
-          //       child: Icon(Feather.search),
-          //     ),
-          //   )
-          // ],
+          actions: [
+            Padding(
+              padding: const EdgeInsets.all(15.0),
+              child: GestureDetector(
+                //Feature coming soon
+                onTap: () {
+                  Navigator.push(
+                      context, CupertinoPageRoute(builder: (_) => Search()));
+                },
+                child: Icon(Feather.search),
+              ),
+            )
+          ],
         ),
         body: StreamBuilder(
-            stream: userChatsStream('${viewModel.user?.uid ?? ""}'),
+            stream: userChatsStream(user.uid),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 List chatList = snapshot.data.documents;
@@ -50,7 +56,7 @@ class Chats extends StatelessWidget {
                             List users = chatListSnapshot.data()['users'];
                             // remove the current user's id from the Users
                             // list so we can get the second user's id
-                            users.remove('${viewModel.user?.uid ?? ""}');
+                            users.remove(user.uid);
                             String recipient = users[0];
                             return ChatItem(
                               userId: recipient,
@@ -93,8 +99,8 @@ class Chats extends StatelessWidget {
 
   Stream<QuerySnapshot> userChatsStream(String uid) {
     return chatRef
-        .where('users', arrayContains: '$uid')
-        //.orderBy('lastTextTime', descending: true)
+        .where('users', arrayContains: uid)
+        .orderBy('lastTextTime', descending: true)
         .snapshots();
   }
 

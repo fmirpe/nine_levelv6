@@ -59,9 +59,10 @@ class _ConversationState extends State<Conversation> {
   }
 
   setTyping(typing) {
-    UserViewModel viewModel = Provider.of<UserViewModel>(context, listen: true);
+    UserViewModel viewModel =
+        Provider.of<UserViewModel>(context, listen: false);
     viewModel.setUser();
-    var user = Provider.of<UserViewModel>(context, listen: true).user;
+    var user = Provider.of<UserViewModel>(context, listen: false).user;
     Provider.of<ConversationViewModel>(context, listen: false)
         .setUserTyping(widget.chatId, user, typing);
   }
@@ -136,8 +137,7 @@ class _ConversationState extends State<Conversation> {
                             Message message = Message.fromJson(
                                 messages.reversed.toList()[index].data());
                             Timer(Duration(seconds: 10), () async {
-                              await viewModel.readMessage(
-                                  chatId, widget.userId);
+                              await viewModel.readMessage(chatId, user.uid);
                             });
                             return ChatBubble(
                               message: '${message.content}',
@@ -351,6 +351,7 @@ class _ConversationState extends State<Conversation> {
     Message message = Message(
       content: '$msg',
       senderUid: user?.uid,
+      receiverUid: widget.userId,
       type: isImage ? MessageType.IMAGE : MessageType.TEXT,
       time: Timestamp.now(),
       isRead: false,
