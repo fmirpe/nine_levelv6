@@ -8,11 +8,13 @@ import 'package:nine_levelv6/models/log.dart';
 import 'package:nine_levelv6/models/user.dart';
 import 'package:nine_levelv6/resources/call_methods.dart';
 import 'package:nine_levelv6/screens/callscreens/call_screen.dart';
+//import 'package:nine_levelv6/screens/callscreens/call_screen_old.dart';
+//import 'package:nine_levelv6/screens/callscreens/call_screen_call.dart';
 
 class CallUtils {
   static final CallMethods callMethods = CallMethods();
 
-  static dial({UserModel from, UserModel to, context}) async {
+  static dial({UserModel from, UserModel to, String typecall, context}) async {
     Call call = Call(
       callerId: from.id,
       callerName: from.username,
@@ -20,6 +22,7 @@ class CallUtils {
       receiverId: to.id,
       receiverName: to.username,
       receiverPic: to.photoUrl,
+      typecall: typecall,
       channelId: Random().nextInt(1000).toString(),
     );
 
@@ -37,12 +40,21 @@ class CallUtils {
     call.hasDialled = true;
 
     if (callMade) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => CallScreen(call: call),
-        ),
-      );
+      if (call.typecall == "Video") {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CallScreen(call: call),
+          ),
+        );
+      } else {
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(
+        //     builder: (context) => CallScreenCall(call: call),
+        //   ),
+        // );
+      }
     }
   }
 }

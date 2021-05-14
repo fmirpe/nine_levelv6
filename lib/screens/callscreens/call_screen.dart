@@ -1,45 +1,134 @@
 import 'dart:async';
 
-import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter_icons/flutter_icons.dart';
+
+import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:nine_levelv6/helpers/utils.dart';
+
+// import 'package:agora_rtc_engine/rtc_engine.dart';
+// import 'package:agora_rtc_engine/rtc_local_view.dart' as RtcLocalView;
+// import 'package:agora_rtc_engine/rtc_remote_view.dart' as RtcRemoteView;
 import 'package:nine_levelv6/models/call.dart';
 import 'package:nine_levelv6/resources/call_methods.dart';
+import 'package:nine_levelv6/screens/callscreens/call_left.dart';
+import 'package:nine_levelv6/screens/callscreens/caller_left.dart';
+import 'package:nine_levelv6/screens/callscreens/receiver_left.dart';
+import 'package:nine_levelv6/screens/callscreens/time_left.dart';
 import 'package:nine_levelv6/view_models/user/user_view_model.dart';
 import 'package:provider/provider.dart';
 
 class CallScreen extends StatefulWidget {
   final Call call;
-
-  CallScreen({
-    @required this.call,
-  });
-
+  final hasDialled;
+  CallScreen({this.call, this.hasDialled = true});
   @override
   _CallScreenState createState() => _CallScreenState();
 }
 
 class _CallScreenState extends State<CallScreen> {
   final CallMethods callMethods = CallMethods();
+  bool callmade = false;
+  bool timecallovered = false;
+  bool canceledcall = false;
+  // UserProvider userProvider;
+  FirebaseAuth _auth = FirebaseAuth.instance;
+  CollectionReference users = FirebaseFirestore.instance.collection("users");
 
-  UserViewModel userProvider;
-  StreamSubscription callStreamSubscription;
-
-  static final _users = <int>[];
+  StreamSubscription<DocumentSnapshot> callStreamSubscription;
+  final _users = <int>[];
   final _infoStrings = <String>[];
   bool muted = false;
-  bool mutedvideo = false;
-
+  bool paused = true;
+  AgoraRtcEngine _engine;
   @override
   void initState() {
     super.initState();
+
     addPostFrameCallback();
-    initializeAgora();
+    initialize();
+    callerorreceiver();
+    theCallPeriod();
+    // initPlatformState();
   }
 
-  Future<void> initializeAgora() async {
+  // check if the user is caller or receiver
+  void callerorreceiver() {
+    final authService = Provider.of<UserViewModel>(context, listen: false);
+    if (widget.hasDialled) {
+      // if the current user hasDialled
+      users.doc(authService.user.uid).update({"caller": true});
+    } else {
+      // if the current is receiver
+      users.doc(authService.user.uid).update({"caller": false});
+    }
+  }
+
+  void theCallPeriod() async {
+    await Future.delayed(Duration(seconds: 30), () async {
+      if (!callmade) {
+        setState(() {
+          timecallovered = true;
+        });
+        await callMethods.endCall(call: widget.call);
+      }
+    });
+  }
+
+  void logicofshowingscreens(call) async {
+    if (widget.hasDialled && callmade) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => CallerLeft(
+            call: widget.call,
+          ),
+        ),
+      );
+    }
+    // show the receiver end call screen
+    if (!widget.hasDialled && callmade) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ReceiverLeft(
+            call: widget.call,
+          ),
+        ),
+      );
+    }
+    // show the caller screen when the caller left before the receiver answer
+    if (widget.hasDialled && canceledcall && !callmade) {
+      Navigator.pushReplacement(context,
+          MaterialPageRoute(builder: (context) => CallLeft(call: widget.call)));
+    }
+    // show this screen when time of calling is overed
+    if (widget.hasDialled && timecallovered) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => TimeLeft(
+            call: widget.call,
+          ),
+        ),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    callStreamSubscription.cancel();
+    _users.clear();
+    // destroy sdk
+    AgoraRtcEngine.leaveChannel();
+    AgoraRtcEngine.destroy();
+    super.dispose();
+  }
+
+  Future<void> initialize() async {
     if (getAgoraAppId().isEmpty) {
       setState(() {
         _infoStrings.add(
@@ -49,27 +138,28 @@ class _CallScreenState extends State<CallScreen> {
       });
       return;
     }
+    await _initAgoraRtcEngine();
+    _addAgoraEventHandlers();
 
     await _initAgoraRtcEngine();
     _addAgoraEventHandlers();
     await AgoraRtcEngine.enableWebSdkInteroperability(true);
-    await AgoraRtcEngine.setParameters(
-        '''{\"che.video.lowBitRateStreamParameter\":{\"width\":320,\"height\":180,\"frameRate\":15,\"bitRate\":140}}''');
+    VideoEncoderConfiguration configuration = VideoEncoderConfiguration();
+    configuration.dimensions = Size(1920, 1080);
+    await AgoraRtcEngine.setVideoEncoderConfiguration(configuration);
     await AgoraRtcEngine.joinChannel(null, widget.call.channelId, null, 0);
   }
 
+  getToken() async {}
+
   addPostFrameCallback() {
     SchedulerBinding.instance.addPostFrameCallback((_) {
-      userProvider = Provider.of<UserViewModel>(context, listen: false);
-
-      callStreamSubscription = callMethods
-          .callStream(uid: userProvider.user.uid)
-          .listen((DocumentSnapshot ds) {
-        // defining the logic
-        switch (ds.data()) {
+      // userProvider = Provider.of<UserProvider>(context, listen: false);
+      callStreamSubscription =
+          callMethods.callStream(uid: _auth.currentUser.uid).listen((snapshot) {
+        switch (snapshot.data()) {
           case null:
-            // snapshot is null which means that call is hanged and documents are deleted
-            Navigator.pop(context);
+            logicofshowingscreens(widget.call);
             break;
 
           default:
@@ -181,146 +271,313 @@ class _CallScreenState extends State<CallScreen> {
 
   /// Helper function to get list of native views
   List<Widget> _getRenderViews() {
-    final List<AgoraRenderWidget> list = [
-      AgoraRenderWidget(0, local: true, preview: true),
-    ];
+    final List<StatefulWidget> list = [];
+    list.add(AgoraRenderWidget(0, local: true, preview: true));
     _users.forEach((int uid) => list.add(AgoraRenderWidget(uid)));
     return list;
   }
 
-  /// Video view wrapper
-  Widget _videoView(view) {
-    return Expanded(child: Container(child: view));
+  Widget firstCall(view) {
+    return Stack(children: [
+      Positioned(
+        right: 0,
+        top: 0,
+        left: 0,
+        bottom: 0,
+        child: Container(
+          child: view,
+        ),
+      ),
+      Container(
+        color: Colors.black.withOpacity(0.6),
+        padding: EdgeInsets.only(top: 30),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                IconButton(
+                    icon: paused
+                        ? Icon(
+                            Feather.video,
+                            color: Colors.white,
+                          )
+                        : Icon(
+                            Feather.video_off,
+                            color: Colors.white,
+                          ),
+                    onPressed: _pauseVideo),
+                IconButton(
+                    icon: !muted
+                        ? Icon(
+                            Feather.mic,
+                            color: Colors.white,
+                          )
+                        : Icon(
+                            Feather.mic_off,
+                            color: Colors.white,
+                          ),
+                    onPressed: _onToggleMute),
+                IconButton(
+                  icon: Icon(
+                    Feather.refresh_ccw,
+                    color: Colors.white,
+                  ),
+                  onPressed: _onSwitchCamera,
+                ),
+                IconButton(
+                    icon: Icon(
+                      Entypo.cross,
+                      size: 30,
+                      color: Colors.white,
+                    ),
+                    onPressed: () async {
+                      setState(() {
+                        canceledcall = true;
+                      });
+                      await callMethods.endCall(call: widget.call);
+                    })
+              ],
+            ),
+            SizedBox(
+              height: 80,
+            ),
+            Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+              Container(
+                height: 100,
+                width: 100,
+                child: ClipRRect(
+                    borderRadius: BorderRadius.circular(100),
+                    child: Image(
+                      image: NetworkImage(widget.call.receiverPic),
+                      fit: BoxFit.cover,
+                    )),
+              ),
+              SizedBox(height: 30),
+              Text(
+                widget.call.receiverName,
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 23,
+                    color: Colors.white),
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              Text(
+                "Contacting...",
+                style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16),
+              )
+            ])
+          ],
+        ),
+      ),
+    ]);
   }
 
-  /// Video view row wrapper
-  Widget _expandedVideoRow(List<Widget> views) {
-    final wrappedViews = views.map<Widget>(_videoView).toList();
-    return Expanded(
-      child: Row(
-        children: wrappedViews,
-      ),
+  Widget anSwerCall(view0, view1) {
+    return Stack(
+      children: [
+        // the caller video
+
+        Positioned(
+            top: 0,
+            right: 0,
+            bottom: 0,
+            left: 0,
+            child: Container(
+              child: view1,
+            )),
+        AnimatedPositioned(
+          top: 30,
+          right: 20,
+          curve: Curves.fastOutSlowIn,
+          duration: Duration(milliseconds: 200),
+          child: Container(
+            height: 160,
+            width: 110,
+            decoration: BoxDecoration(boxShadow: [
+              BoxShadow(
+                  color: Colors.grey.withOpacity(0.5),
+                  offset: Offset(0, 3),
+                  spreadRadius: 6.0,
+                  blurRadius: 5)
+            ]),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Container(
+                // color: Colors.red,
+                child: view0,
+              ),
+            ),
+          ),
+        ),
+        _toolbar()
+      ],
     );
+  }
+
+  Widget ansWerWidget(view0, view1, context) {
+    Size size = MediaQuery.of(context).size;
+    return Stack(
+      children: [
+        Container(
+          width: size.width,
+          height: size.height,
+          child: Column(children: [
+            Expanded(
+                child: Container(
+              child: view0,
+            )),
+            Expanded(
+                child: Container(
+              child: view1,
+            )),
+          ]),
+        ),
+        Positioned(
+          top: 20,
+          left: 0,
+          right: 0,
+          child: Container(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                IconButton(
+                    icon: paused
+                        ? Icon(
+                            Feather.video,
+                            color: Colors.white,
+                          )
+                        : Icon(
+                            Feather.video_off,
+                            color: Colors.white,
+                          ),
+                    onPressed: _pauseVideo),
+                IconButton(
+                    icon: !muted
+                        ? Icon(
+                            Feather.mic,
+                            color: Colors.white,
+                          )
+                        : Icon(
+                            Feather.mic_off,
+                            color: Colors.white,
+                          ),
+                    onPressed: _onToggleMute),
+                IconButton(
+                  icon: Icon(
+                    Feather.refresh_ccw,
+                    color: Colors.white,
+                  ),
+                  onPressed: _onSwitchCamera,
+                ),
+                IconButton(
+                    icon: Icon(
+                      Entypo.cross,
+                      size: 30,
+                      color: Colors.white,
+                    ),
+                    onPressed: () async {
+                      setState(() {
+                        canceledcall = true;
+                      });
+                      await callMethods.endCall(call: widget.call);
+                    })
+              ],
+            ),
+          ),
+        ),
+        Positioned(
+          right: 20,
+          bottom: 20,
+          child: Container(
+            alignment: Alignment.bottomRight,
+            child: Row(
+              children: [
+                Column(children: [
+                  IconButton(
+                    icon: Icon(
+                      AntDesign.picture,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {},
+                  ),
+                  Text(
+                    "Media",
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  )
+                ]),
+                Column(children: [
+                  IconButton(
+                    icon: Icon(
+                      MaterialIcons.people_outline,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {},
+                  ),
+                  Text(
+                    "Add",
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  )
+                ])
+              ],
+            ),
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget showanswerwidget(view0, view1) {
+    setState(() {
+      callmade = true;
+    });
+    return ansWerWidget(view0, view1, context);
   }
 
   /// Video layout wrapper
-  Widget _viewRows() {
+  Widget _viewRows(BuildContext context) {
     final views = _getRenderViews();
     switch (views.length) {
       case 1:
-        return Container(
-            child: Column(
-          children: <Widget>[_videoView(views[0])],
-        ));
+        return widget.hasDialled
+            ? firstCall(views[0])
+            : Container(
+                color: Colors.black,
+              );
       case 2:
-        return Container(
-            child: Column(
-          children: <Widget>[
-            _expandedVideoRow([views[0]]),
-            _expandedVideoRow([views[1]])
-          ],
-        ));
-      case 3:
-        return Container(
-            child: Column(
-          children: <Widget>[
-            _expandedVideoRow(views.sublist(0, 2)),
-            _expandedVideoRow(views.sublist(2, 3))
-          ],
-        ));
-      case 4:
-        return Container(
-            child: Column(
-          children: <Widget>[
-            _expandedVideoRow(views.sublist(0, 2)),
-            _expandedVideoRow(views.sublist(2, 4))
-          ],
-        ));
+        return showanswerwidget(views[0], views[1]);
       default:
     }
     return Container();
-  }
-
-  /// Info panel to show logs
-  Widget _panel() {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 48),
-      alignment: Alignment.bottomCenter,
-      child: FractionallySizedBox(
-        heightFactor: 0.5,
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 48),
-          child: ListView.builder(
-            reverse: true,
-            itemCount: _infoStrings.length,
-            itemBuilder: (BuildContext context, int index) {
-              if (_infoStrings.isEmpty) {
-                return null;
-              }
-              return Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 3,
-                  horizontal: 10,
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Flexible(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 2,
-                          horizontal: 5,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.yellowAccent,
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        child: Text(
-                          _infoStrings[index],
-                          style: TextStyle(color: Colors.blueGrey),
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-              );
-            },
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _onToggleMute() {
-    setState(() {
-      muted = !muted;
-    });
-    AgoraRtcEngine.muteLocalAudioStream(muted);
-  }
-
-  void _onVideoMute() async {
-    setState(() {
-      mutedvideo = !mutedvideo;
-    });
-    await AgoraRtcEngine.enableLocalVideo(!mutedvideo);
-  }
-
-  void _onSwitchCamera() {
-    AgoraRtcEngine.switchCamera();
   }
 
   /// Toolbar layout
   Widget _toolbar() {
     return Container(
       alignment: Alignment.bottomCenter,
-      padding: const EdgeInsets.symmetric(vertical: 5),
+      padding: const EdgeInsets.symmetric(vertical: 48),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           RawMaterialButton(
-            onPressed: () => callMethods.endCall(
-              call: widget.call,
+            onPressed: _onToggleMute,
+            child: Icon(
+              muted ? Icons.mic_off : Icons.mic,
+              color: muted ? Colors.white : Colors.blueAccent,
+              size: 20.0,
             ),
+            shape: CircleBorder(),
+            elevation: 2.0,
+            fillColor: muted ? Colors.blueAccent : Colors.white,
+            padding: const EdgeInsets.all(12.0),
+          ),
+          RawMaterialButton(
+            onPressed: () => _onCallEnd(context),
             child: Icon(
               Icons.call_end,
               color: Colors.white,
@@ -330,18 +587,6 @@ class _CallScreenState extends State<CallScreen> {
             elevation: 2.0,
             fillColor: Colors.redAccent,
             padding: const EdgeInsets.all(15.0),
-          ),
-          RawMaterialButton(
-            onPressed: _onToggleMute,
-            child: Icon(
-              !muted ? Icons.mic : Icons.mic_off,
-              color: !muted ? Colors.white : Colors.blueAccent,
-              size: 20.0,
-            ),
-            shape: CircleBorder(),
-            elevation: 2.0,
-            fillColor: !muted ? Colors.blueAccent : Colors.white,
-            padding: const EdgeInsets.all(12.0),
           ),
           RawMaterialButton(
             onPressed: _onSwitchCamera,
@@ -354,48 +599,43 @@ class _CallScreenState extends State<CallScreen> {
             elevation: 2.0,
             fillColor: Colors.white,
             padding: const EdgeInsets.all(12.0),
-          ),
-          RawMaterialButton(
-            onPressed: _onVideoMute,
-            child: Icon(
-              !mutedvideo ? Icons.videocam : Icons.videocam_off,
-              color: !mutedvideo ? Colors.white : Colors.blueAccent,
-              size: 20.0,
-            ),
-            shape: CircleBorder(),
-            elevation: 2.0,
-            fillColor: !mutedvideo ? Colors.blueAccent : Colors.white,
-            padding: const EdgeInsets.all(12.0),
           )
         ],
       ),
     );
   }
 
-  @override
-  void dispose() {
-    // clear users
-    _users.clear();
-    // destroy sdk
-    AgoraRtcEngine.leaveChannel();
-    AgoraRtcEngine.destroy();
-    callStreamSubscription.cancel();
-    super.dispose();
+  /// Info panel to show logs
+
+  void _onCallEnd(BuildContext context) async {
+    await callMethods.endCall(call: widget.call);
+    Navigator.pop(context);
+  }
+
+  void _onToggleMute() {
+    setState(() {
+      muted = !muted;
+    });
+    AgoraRtcEngine.muteLocalAudioStream(muted);
+  }
+
+  void _onSwitchCamera() {
+    AgoraRtcEngine.switchCamera();
+  }
+
+  void _pauseVideo() {
+    setState(() {
+      paused = !paused;
+    });
+    AgoraRtcEngine.enableLocalVideo(paused);
   }
 
   @override
   Widget build(BuildContext context) {
+    theCallPeriod();
     return Scaffold(
       backgroundColor: Colors.black,
-      body: Center(
-        child: Stack(
-          children: <Widget>[
-            _viewRows(),
-            //_panel(),
-            _toolbar(),
-          ],
-        ),
-      ),
+      body: _viewRows(context),
     );
   }
 }

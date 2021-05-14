@@ -94,9 +94,10 @@ class _ChatBubbleState extends State<ChatBubble> {
                       )
                     : CachedNetworkImage(
                         imageUrl: "${widget.message}",
-                        height: 200,
+                        maxWidthDiskCache: 200,
+                        //height: 200,
                         width: MediaQuery.of(context).size.width / 1.3,
-                        fit: BoxFit.cover,
+                        fit: BoxFit.contain,
                       ),
               ),
             ],

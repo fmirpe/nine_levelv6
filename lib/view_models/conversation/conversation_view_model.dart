@@ -6,6 +6,7 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:nine_levelv6/models/message.dart';
 import 'package:nine_levelv6/services/chat_service.dart';
+import 'package:nine_levelv6/utils/constants.dart';
 
 class ConversationViewModel extends ChangeNotifier {
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
@@ -67,7 +68,7 @@ class ConversationViewModel extends ChangeNotifier {
         ],
         androidUiSettings: AndroidUiSettings(
           toolbarTitle: 'Crop image',
-          toolbarColor: Theme.of(context).appBarTheme.color,
+          toolbarColor: Constants.darkAccent,
           toolbarWidgetColor: Theme.of(context).iconTheme.color,
           initAspectRatio: CropAspectRatioPreset.original,
           lockAspectRatio: false,

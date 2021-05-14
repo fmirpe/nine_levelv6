@@ -1,17 +1,15 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:nine_levelv6/helpers/utils.dart';
 import 'package:nine_levelv6/models/call.dart';
 import 'package:nine_levelv6/resources/call_methods.dart';
 import 'package:nine_levelv6/screens/callscreens/call_screen.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class PickupScreen extends StatefulWidget {
   final Call call;
 
-  PickupScreen({
-    @required this.call,
-  });
+  PickupScreen({this.call});
 
   @override
   _PickupScreenState createState() => _PickupScreenState();
@@ -19,18 +17,6 @@ class PickupScreen extends StatefulWidget {
 
 class _PickupScreenState extends State<PickupScreen> {
   final CallMethods callMethods = CallMethods();
-  // final LogRepository logRepository = LogRepository(isHive: true);
-  // final LogRepository logRepository = LogRepository(isHive: false);
-
-  bool isCallMissed = true;
-
-  @override
-  void dispose() {
-    // if (isCallMissed) {
-    //   addToLocalStorage(callStatus: CALL_STATUS_MISSED);
-    // }
-    super.dispose();
-  }
 
   @override
   void initState() {
@@ -40,80 +26,106 @@ class _PickupScreenState extends State<PickupScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     return Scaffold(
-      body: Container(
-        alignment: Alignment.center,
-        padding: EdgeInsets.symmetric(vertical: 5),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              "Incoming...",
-              style: TextStyle(
-                fontSize: 30,
-              ),
-            ),
-            SizedBox(height: 10),
-            ClipOval(
-              child: CachedNetworkImage(
-                imageUrl: widget.call.callerPic,
-                width: 150.0,
-                height: 150.0,
-              ),
-            ),
-            // CachedNetworkImage(
-            //   imageUrl: widget.call.callerPic,
-            //   width: 180.0,
-            //   height: 180.0,
-            // ),
-            // CachedImage(
-            //   widget.call.callerPic,
-            //   isRound: true,
-            //   radius: 180,
-            // ),
-            SizedBox(height: 10),
-            Text(
-              widget.call.callerName,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-              ),
-            ),
-            SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                IconButton(
-                  icon: Icon(Icons.call_end),
+        body: Container(
+      decoration: BoxDecoration(
+          gradient: LinearGradient(
+              begin: Alignment.bottomLeft,
+              end: Alignment.topRight,
+              colors: [
+            Color(0xFFD9E4DD),
+            Color(0xFF92817A),
+            Color(0xFF373A40),
+            Color(0xFF838383)
+          ])),
+      width: size.width,
+      height: size.height,
+      // alignment: Alignment.center,
+      // padding: EdgeInsets.symmetric(vertical: 100),
+
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(
+            height: 50,
+          ),
+          Container(
+            height: 100,
+            width: 100,
+            child: ClipRRect(
+                borderRadius: BorderRadius.circular(100),
+                child: Image(
+                  image: NetworkImage(widget.call.callerPic),
+                  fit: BoxFit.cover,
+                )),
+          ),
+          SizedBox(
+            height: 15,
+          ),
+          Text(
+            widget.call.callerName,
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+          ),
+          SizedBox(
+            height: 20,
+          ),
+          Text("Incoming...", style: TextStyle(fontSize: 24)),
+          SizedBox(
+            height: 15,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
                   color: Colors.redAccent,
+                ),
+                child: IconButton(
+                  icon: Icon(
+                    Icons.call_end,
+                    color: Colors.white,
+                  ),
                   onPressed: () async {
-                    isCallMissed = false;
                     FlutterRingtonePlayer.stop();
                     await callMethods.endCall(call: widget.call);
                   },
                 ),
-                SizedBox(width: 30),
-                IconButton(
-                    icon: Icon(Icons.call),
-                    color: Colors.green,
-                    onPressed: () async {
-                      isCallMissed = false;
-                      FlutterRingtonePlayer.stop();
-                      await handlePermissionsForCall(context)
-                          ? Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    CallScreen(call: widget.call),
-                              ),
-                            )
-                          : {};
-                    }),
-              ],
-            ),
-          ],
-        ),
+              ),
+              SizedBox(width: 25),
+              Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.green,
+                ),
+                child: IconButton(
+                  icon: Icon(
+                    Icons.call,
+                    color: Colors.white,
+                  ),
+                  onPressed: () async {
+                    FlutterRingtonePlayer.stop();
+                    await handlePermissionsForCall(context)
+                        ? Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => CallScreen(
+                                      call: widget.call,
+                                      hasDialled: false,
+                                    )))
+                        : {};
+                  },
+                ),
+              )
+            ],
+          ),
+        ],
       ),
-    );
+    ));
   }
 }

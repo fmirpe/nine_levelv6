@@ -102,17 +102,31 @@ class _ConversationState extends State<Conversation> {
 
                   await handlePermissionsForCall(context)
                       ? CallUtils.dial(
-                          from: userfrom, to: userto, context: context)
+                          from: userfrom,
+                          to: userto,
+                          typecall: "Video",
+                          context: context)
                       : {};
                 },
-                // onPressed: () async =>
-                // await handlePermissionsForCall(context)
-                //     ? CallUtils.dial(
-                //         from: sender,
-                //         to: widget.receiver,
-                //         context: context,
-                //       )
-                //     : {},
+              ),
+              IconButton(
+                icon: Icon(CupertinoIcons.phone_circle_fill,
+                    size: 30.0, color: Constants.gradianButtom),
+                onPressed: () async {
+                  var snapshotori = await usersRef.doc('${user.uid}').get();
+                  UserModel userfrom = UserModel.fromJson(snapshotori.data());
+
+                  var snapshot = await usersRef.doc('${widget.userId}').get();
+                  UserModel userto = UserModel.fromJson(snapshot.data());
+
+                  await handlePermissionsForCall(context)
+                      ? CallUtils.dial(
+                          from: userfrom,
+                          to: userto,
+                          typecall: "Call",
+                          context: context)
+                      : {};
+                },
               ),
             ],
           ),
