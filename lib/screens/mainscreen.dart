@@ -4,8 +4,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:nine_levelv6/chats/conversation.dart';
 import 'package:nine_levelv6/chats/recent_chats.dart';
 import 'package:nine_levelv6/components/fab_container.dart';
+import 'package:nine_levelv6/helpers/utils.dart';
 import 'package:nine_levelv6/pages/coaching.dart';
 import 'package:nine_levelv6/pages/driver.dart';
 import 'package:nine_levelv6/pages/marketplace.dart';
@@ -20,6 +22,7 @@ import 'package:nine_levelv6/utils/firebase.dart';
 import 'package:nine_levelv6/view_models/user/user_view_model.dart';
 import 'package:package_info/package_info.dart';
 import 'package:provider/provider.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 
 class TabScreen extends StatefulWidget {
   @override
@@ -35,6 +38,10 @@ class _TabScreenState extends State<TabScreen> {
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
   bool confignotification = false;
+
+  String _debugLabelString = "";
+  // CHANGE THIS parameter to true if you want to test GDPR privacy consent
+  bool _requireConsent = true;
 
   List pages = [
     {
@@ -72,12 +79,122 @@ class _TabScreenState extends State<TabScreen> {
   @override
   void initState() {
     super.initState();
+    initPlatformState();
     cargaDatos();
 
-    if (!confignotification) {
-      registerNotification();
-      configLocalNotification();
-    }
+    //if (!confignotification) {
+    //  registerNotification();
+    //  configLocalNotification();
+    //}
+    _handleConsent();
+    //_handleSetExternalUserId();
+    _handleSetEmail();
+  }
+
+  // Platform messages are asynchronous, so we initialize in an async method.
+  Future<void> initPlatformState() async {
+    if (!mounted) return;
+
+    OneSignal.shared.setLogLevel(OSLogLevel.verbose, OSLogLevel.none);
+
+    OneSignal.shared.setRequiresUserPrivacyConsent(_requireConsent);
+
+    var settings = {
+      OSiOSSettings.autoPrompt: false,
+      OSiOSSettings.promptBeforeOpeningPushUrl: true,
+    };
+
+    OneSignal.shared
+        .setNotificationReceivedHandler((OSNotification notification) {
+      print(
+          "Received notification: \n${notification.jsonRepresentation().replaceAll("\\n", "\n")}");
+    });
+
+    OneSignal.shared.setNotificationOpenedHandler(
+        (OSNotificationOpenedResult result) async {
+      print(
+          "Opened notification: \n${result.notification.jsonRepresentation().replaceAll("\\n", "\n")}");
+
+      var chatId = await result.notification.payload.additionalData["chatId"];
+      var userId = await result.notification.payload.additionalData["userId"];
+      print(userId);
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => Chats(),
+        ),
+      );
+    });
+
+    OneSignal.shared
+        .setInAppMessageClickedHandler((OSInAppMessageAction action) {
+      print(
+          "In App Message Clicked: \n${action.jsonRepresentation().replaceAll("\\n", "\n")}");
+    });
+
+    OneSignal.shared
+        .setSubscriptionObserver((OSSubscriptionStateChanges changes) {
+      print("SUBSCRIPTION STATE CHANGED: ${changes.jsonRepresentation()}");
+    });
+
+    OneSignal.shared.setPermissionObserver((OSPermissionStateChanges changes) {
+      print("PERMISSION STATE CHANGED: ${changes.jsonRepresentation()}");
+    });
+
+    OneSignal.shared.setEmailSubscriptionObserver(
+        (OSEmailSubscriptionStateChanges changes) {
+      print("EMAIL SUBSCRIPTION STATE CHANGED ${changes.jsonRepresentation()}");
+    });
+
+    // NOTE: Replace with your own app ID from https://www.onesignal.com
+    await OneSignal.shared.init(getOneSignalAppId(), iOSSettings: settings);
+
+    OneSignal.shared
+        .setInFocusDisplayType(OSNotificationDisplayType.notification);
+
+    bool requiresConsent = await OneSignal.shared.requiresUserPrivacyConsent();
+  }
+
+  void _handlePromptForPushPermission() {
+    print("Prompting for Permission");
+    OneSignal.shared.promptUserForPushNotificationPermission().then((accepted) {
+      print("Accepted permission: $accepted");
+    });
+  }
+
+  void _handleGetPermissionSubscriptionState() {
+    print("Getting permissionSubscriptionState");
+    OneSignal.shared.getPermissionSubscriptionState().then((status) {
+      print(status.jsonRepresentation());
+      var userId = status.subscriptionStatus.userId;
+
+      UserViewModel viewModel =
+          Provider.of<UserViewModel>(context, listen: false);
+      viewModel.updateToken(userId);
+    });
+  }
+
+  void _handleSetEmail() {
+    UserViewModel viewModel =
+        Provider.of<UserViewModel>(context, listen: false);
+    viewModel.setUser();
+    var user = Provider.of<UserViewModel>(context, listen: false).user;
+
+    print("Setting email");
+
+    OneSignal.shared.setEmail(email: user.email).whenComplete(() {
+      print("Successfully set email");
+      _handleGetPermissionSubscriptionState();
+    }).catchError((error) {
+      print("Failed to set email with error: $error");
+    });
+  }
+
+  void _handleConsent() {
+    print("Setting consent to true");
+    OneSignal.shared.consentGranted(true);
+
+    print("Setting state");
   }
 
   void configLocalNotification() {
@@ -117,7 +234,6 @@ class _TabScreenState extends State<TabScreen> {
         onMessage: (Map<String, dynamic> message) async {
       print('onMessage: $message');
       //_showNotificationWithDefaultSound(message['notification']);
-      final authService = Provider.of<UserViewModel>(context, listen: false);
       //String peerId = message['data']['peerId'];
       //String peerAvatar = message['data']['peerPhotoUrl'];
       print(firebaseAuth.currentUser.uid);
@@ -136,13 +252,6 @@ class _TabScreenState extends State<TabScreen> {
       print('onLaunch: $message');
       return;
     });
-
-    // firebaseMessaging.requestNotificationPermissions(
-    //     const IosNotificationSettings(sound: true, badge: true, alert: true));
-    // firebaseMessaging.onIosSettingsRegistered
-    //     .listen((IosNotificationSettings settings) {
-    //   print("Settings registered: $settings");
-    // });
 
     firebaseMessaging.getToken().then((token) {
       final authService = Provider.of<UserViewModel>(context, listen: false);

@@ -83,7 +83,11 @@ class ChatItem extends StatelessWidget {
               ),
             ),
             subtitle: Text(
-              type == MessageType.IMAGE ? "IMAGE" : "$msg",
+              type == MessageType.IMAGE
+                  ? "IMAGE"
+                  : type == MessageType.AUDIO
+                      ? "AUDIO"
+                      : "$msg",
               overflow: TextOverflow.ellipsis,
               maxLines: 2,
             ),

@@ -1,3 +1,8 @@
+import 'dart:io';
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:nine_levelv6/components/life_cycle_event_handler.dart';
@@ -10,9 +15,14 @@ import 'package:nine_levelv6/utils/providers.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
+  //runZonedGuarded(() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Config.initFirebase();
   runApp(MyApp());
+  //}, (Object error, StackTrace stack) {
+  //  print(error);
+  //print(stack);
+  //});
 }
 
 class MyApp extends StatefulWidget {
@@ -28,6 +38,12 @@ class _MyAppState extends State<MyApp> {
       detachedCallBack: () => UserService().setUserStatus(false),
       resumeCallBack: () => UserService().setUserStatus(true),
     ));
+  }
+
+  @override
+  void dispose() {
+    UserService().setUserStatus(false);
+    super.dispose();
   }
 
   @override

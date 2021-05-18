@@ -91,6 +91,21 @@ class ConversationViewModel extends ChangeNotifier {
     }
   }
 
+  pickAudio({String source, BuildContext context, String chatId}) async {
+    File audio;
+
+    Navigator.of(context).pop();
+
+    if (source != null) {
+      audio = File(source);
+      uploadingImage = true;
+      notifyListeners();
+      showInSnackBar("Uploading Audio...");
+      String imageUrl = await chatService.uploadAudio(audio, chatId);
+      return imageUrl;
+    }
+  }
+
   void showInSnackBar(String value) {
     scaffoldKey.currentState.removeCurrentSnackBar();
     scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(value)));

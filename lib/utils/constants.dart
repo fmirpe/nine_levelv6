@@ -82,17 +82,27 @@ class Constants {
 
 class ThemeNotifier extends ChangeNotifier {
   final String key = 'theme';
+  final String keyMute = 'muteVideo';
   SharedPreferences _prefs;
   bool _darkTheme;
+  bool _muteVideo;
   bool get dark => _darkTheme;
+  bool get muteVideo => _muteVideo;
 
   ThemeNotifier() {
-    _darkTheme = true;
+    _darkTheme = false;
+    _muteVideo = false;
     _loadfromPrefs();
   }
   toggleTheme() {
     _darkTheme = !_darkTheme;
-    _saveToPrefs();
+    _saveToPrefs(key);
+    notifyListeners();
+  }
+
+  toggleMuteVideo() {
+    _muteVideo = !_muteVideo;
+    _saveToPrefs(keyMute);
     notifyListeners();
   }
 
@@ -103,10 +113,11 @@ class ThemeNotifier extends ChangeNotifier {
   _loadfromPrefs() async {
     await _initPrefs();
     _darkTheme = _prefs.getBool(key) ?? true;
+    _muteVideo = _prefs.getBool(keyMute) ?? true;
     notifyListeners();
   }
 
-  _saveToPrefs() async {
+  _saveToPrefs(String key) async {
     await _initPrefs();
     _prefs.setBool(key, _darkTheme);
   }

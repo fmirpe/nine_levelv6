@@ -26,6 +26,14 @@ class UserService extends Service {
     }
   }
 
+  Future<String> getToken(String user) async {
+    if (user != null) {
+      var datauser = await usersRef.doc(user).get();
+      return datauser.get("Token");
+    }
+    return "";
+  }
+
   updateMoneyUser(String userId, int money) async {
     DocumentSnapshot doc = await usersRef.doc(userId).get();
     var users = UserModel.fromJson(doc.data());

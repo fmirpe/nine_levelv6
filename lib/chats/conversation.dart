@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -9,6 +10,11 @@ import 'package:nine_levelv6/helpers/utils.dart';
 import 'package:nine_levelv6/screens/callscreens/pickup/pickup_layout.dart';
 import 'package:nine_levelv6/utils/call_utilities.dart';
 import 'package:nine_levelv6/utils/constants.dart';
+import 'package:nine_levelv6/utils/demo_active_codec.dart';
+import 'package:nine_levelv6/utils/demo_common.dart';
+import 'package:nine_levelv6/utils/recorder_state.dart';
+import 'package:nine_levelv6/utils/temp_file.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:nine_levelv6/components/chat_bubble.dart';
 import 'package:nine_levelv6/models/enum/message_type.dart';
@@ -19,6 +25,9 @@ import 'package:nine_levelv6/view_models/conversation/conversation_view_model.da
 import 'package:nine_levelv6/view_models/user/user_view_model.dart';
 import 'package:nine_levelv6/widgets/indicators.dart';
 import 'package:timeago/timeago.dart' as timeago;
+
+import 'package:flutter_sound/flutter_sound.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 class Conversation extends StatefulWidget {
   final String userId;
@@ -37,6 +46,18 @@ class _ConversationState extends State<Conversation> {
   bool isFirst = false;
   String chatId;
 
+  bool initialized = false;
+
+  String recordingFile;
+  Track track;
+  bool enviarAudio = false;
+
+  @override
+  void dispose() {
+    _clean();
+    super.dispose();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -48,6 +69,8 @@ class _ConversationState extends State<Conversation> {
     }
     chatId = widget.chatId;
 
+    handlePermissionsForCall(context);
+
     messageController.addListener(() {
       if (focusNode.hasFocus && messageController.text.isNotEmpty) {
         setTyping(true);
@@ -56,6 +79,39 @@ class _ConversationState extends State<Conversation> {
         setTyping(false);
       }
     });
+
+    iniciarTrack();
+  }
+
+  void iniciarTrack() {
+    tempFile(suffix: '.aac').then((path) {
+      recordingFile = path;
+      track = Track(trackPath: recordingFile);
+      init();
+      setState(() {});
+    });
+  }
+
+  Future<bool> init() async {
+    if (!initialized) {
+      await initializeDateFormatting();
+      await UtilRecorder().init();
+      ActiveCodec().recorderModule = UtilRecorder().recorderModule;
+      ActiveCodec().setCodec(withUI: false, codec: Codec.aacADTS);
+
+      initialized = true;
+    }
+    return initialized;
+  }
+
+  void _clean() async {
+    if (recordingFile != null) {
+      try {
+        await File(recordingFile).delete();
+      } on Exception {
+        // ignore
+      }
+    }
   }
 
   setTyping(typing) {
@@ -109,25 +165,25 @@ class _ConversationState extends State<Conversation> {
                       : {};
                 },
               ),
-              IconButton(
-                icon: Icon(CupertinoIcons.phone_circle_fill,
-                    size: 30.0, color: Constants.gradianButtom),
-                onPressed: () async {
-                  var snapshotori = await usersRef.doc('${user.uid}').get();
-                  UserModel userfrom = UserModel.fromJson(snapshotori.data());
+              // IconButton(
+              //   icon: Icon(CupertinoIcons.phone_circle_fill,
+              //       size: 30.0, color: Constants.gradianButtom),
+              //   onPressed: () async {
+              //     var snapshotori = await usersRef.doc('${user.uid}').get();
+              //     UserModel userfrom = UserModel.fromJson(snapshotori.data());
 
-                  var snapshot = await usersRef.doc('${widget.userId}').get();
-                  UserModel userto = UserModel.fromJson(snapshot.data());
+              //     var snapshot = await usersRef.doc('${widget.userId}').get();
+              //     UserModel userto = UserModel.fromJson(snapshot.data());
 
-                  await handlePermissionsForCall(context)
-                      ? CallUtils.dial(
-                          from: userfrom,
-                          to: userto,
-                          typecall: "Call",
-                          context: context)
-                      : {};
-                },
-              ),
+              //     await handlePermissionsForCall(context)
+              //         ? CallUtils.dial(
+              //             from: userfrom,
+              //             to: userto,
+              //             typecall: "Call",
+              //             context: context)
+              //         : {};
+              //   },
+              // ),
             ],
           ),
           body: Container(
@@ -150,7 +206,7 @@ class _ConversationState extends State<Conversation> {
                           itemBuilder: (BuildContext context, int index) {
                             Message message = Message.fromJson(
                                 messages.reversed.toList()[index].data());
-                            Timer(Duration(seconds: 10), () async {
+                            Timer(Duration(seconds: 5), () async {
                               await viewModel.readMessage(chatId, user.uid);
                             });
                             return ChatBubble(
@@ -207,6 +263,13 @@ class _ConversationState extends State<Conversation> {
                               ),
                               maxLines: null,
                             ),
+                          ),
+                          IconButton(
+                            icon: Icon(
+                              Feather.mic,
+                              color: Theme.of(context).accentColor,
+                            ),
+                            onPressed: () => showAudioOptions(viewModel, user),
                           ),
                           IconButton(
                             icon: Icon(
@@ -348,6 +411,163 @@ class _ConversationState extends State<Conversation> {
     );
   }
 
+  showAudioOptions(ConversationViewModel viewModel, var user) {
+    showModalBottomSheet(
+      context: context,
+      useRootNavigator: true,
+      isDismissible: false,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(
+          Radius.circular(10.0),
+        ),
+      ),
+      builder: (context) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            _buildRecorder(track, viewModel, user),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildRecorder(
+      Track track, ConversationViewModel viewModel, var user) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: RecorderPlaybackController(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Row(
+                    children: [
+                      GestureDetector(
+                        child: Icon(
+                          Feather.x_circle,
+                          size: 16.0,
+                          color: Theme.of(context).accentColor,
+                        ),
+                        onTap: () {
+                          UtilRecorder().reset();
+                          enviarAudio = false;
+                          Navigator.pop(context);
+                        },
+                      ),
+                      SizedBox(
+                        width: 5.0,
+                      ),
+                      Text('Recorder'),
+                    ],
+                  ),
+                  if (enviarAudio)
+                    GestureDetector(
+                      child: Icon(
+                        Feather.send,
+                        size: 16.0,
+                        color: Theme.of(context).accentColor,
+                      ),
+                      onTap: () {
+                        sendAudioMessage(viewModel, user);
+                      },
+                    )
+                  else
+                    Container(),
+                ],
+              ),
+            ),
+            SoundRecorderUI(
+              track,
+              onDelete: () {
+                UtilRecorder().reset();
+                this.setState(() {
+                  enviarAudio = false;
+                });
+                Navigator.of(context).pop();
+              },
+              onStart: () {
+                print("Iniciando");
+              },
+              onPaused: (media, isPaused) async {
+                print("Pausada------>");
+                var tamano = await makeBuffer(track.trackPath);
+                if (tamano.length > 0 && isPaused) {
+                  this.setState(() {
+                    enviarAudio = true;
+                    showAudioOptions(viewModel, user);
+                  });
+                }
+              },
+              onStopped: (media) async {
+                print("Paro------>");
+                var tamano = await makeBuffer(track.trackPath);
+                if (tamano.length > 0) {
+                  this.setState(() {
+                    enviarAudio = true;
+                    showAudioOptions(viewModel, user);
+                  });
+                }
+              },
+            ),
+            // Left('Recording Playback'),
+            // SoundPlayerUI.fromTrack(
+            //   track,
+            //   enabled: false,
+            //   showTitle: true,
+            //   audioFocus: AudioFocus.requestFocusAndDuckOthers,
+            // ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  sendAudioMessage(ConversationViewModel viewModel, var user) async {
+    String msg;
+    msg = await viewModel.pickAudio(
+      source: track.trackPath,
+      context: context,
+      chatId: widget.chatId,
+    );
+
+    Message message = Message(
+      content: '$msg',
+      senderUid: user?.uid,
+      receiverUid: widget.userId,
+      type: MessageType.AUDIO,
+      time: Timestamp.now(),
+      isRead: false,
+      timeisRead: Timestamp.now(),
+    );
+
+    if (msg.isNotEmpty) {
+      if (isFirst) {
+        print("FIRST");
+        String id = await viewModel.sendFirstMessage(widget.userId, message);
+        setState(() {
+          isFirst = false;
+          chatId = id;
+        });
+      } else {
+        viewModel.sendMessage(
+          widget.chatId,
+          message,
+        );
+      }
+      sendNotification(widget.chatId, widget.userId, message);
+      UtilRecorder().reset();
+      this.setState(() {
+        enviarAudio = false;
+      });
+      Navigator.pop(context);
+    }
+  }
+
   sendMessage(ConversationViewModel viewModel, var user,
       {bool isImage = false, int imageType}) async {
     String msg;
@@ -386,7 +606,62 @@ class _ConversationState extends State<Conversation> {
           message,
         );
       }
+      sendNotification(widget.chatId, widget.userId, message);
     }
+  }
+
+  void sendNotification(String chatid, String userId, Message message) async {
+    var documentSnapshot = await usersRef.doc(userId).get();
+
+    UserModel userdest = UserModel.fromJson(documentSnapshot.data());
+
+    var map = {"chatId": chatid, "userId": userId};
+
+    //if (!userdest.isOnline) {
+    UserViewModel viewModel =
+        Provider.of<UserViewModel>(context, listen: false);
+    var user = viewModel.user;
+    viewModel.getToken(userId).then((value) async {
+      if (value == null) return;
+      var playerId = value;
+      var imgUrlString = "";
+      var contenido = "";
+      if (message.type == MessageType.IMAGE) {
+        imgUrlString = message.content;
+        contenido = "Image";
+      } else if (message.type == MessageType.TEXT) {
+        contenido = message.content;
+      } else if (message.type == MessageType.AUDIO) {
+        contenido = "Auddio";
+      } else if (message.type == MessageType.VIDEO) {
+        contenido = "Video";
+      }
+
+      var notification = OSCreateNotification(
+        playerIds: [playerId],
+        content: contenido,
+        // subtitle: "New message from " + user.displayName == null
+        //     ? user.email
+        //     : user.displayName,
+        heading: "New message from " + user.displayName == ""
+            ? user.email
+            : user.displayName,
+        //iosAttachments: {"id1": imgUrlString},
+        bigPicture: imgUrlString == "" ? null : imgUrlString,
+        androidSmallIcon: '@mipmap/launcher_icon',
+        androidSound: 'assets/sounds/matrix-phone.mp3',
+        additionalData: map,
+        buttons: [
+          OSActionButton(text: "Cancel", id: "id1"),
+          OSActionButton(text: "Read", id: "id2")
+        ],
+      );
+
+      var response = await OneSignal.shared.postNotification(notification);
+
+      print("Sent notification with response: $response");
+    });
+    //}
   }
 
   Stream<QuerySnapshot> messageListStream(String documentId) {
@@ -395,5 +670,23 @@ class _ConversationState extends State<Conversation> {
         .collection('messages')
         .orderBy('time')
         .snapshots();
+  }
+}
+
+///
+class Left extends StatelessWidget {
+  ///
+  final String label;
+
+  ///
+  Left(this.label);
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 16.0, bottom: 4, left: 8),
+      child: Container(
+          alignment: Alignment.centerLeft,
+          child: Text(label, style: TextStyle(fontWeight: FontWeight.bold))),
+    );
   }
 }

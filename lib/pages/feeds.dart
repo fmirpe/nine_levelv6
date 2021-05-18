@@ -30,7 +30,7 @@ class Timeline extends StatelessWidget {
               width: 5.0,
             ),
             Text(
-              'Nine Level',
+              Constants.appName,
               style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16.0),
             ),
           ],

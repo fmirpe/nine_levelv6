@@ -2,8 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:nine_levelv6/widgets/indicators.dart';
 import 'package:video_player/video_player.dart';
+import 'package:flick_video_player/flick_video_player.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 class CustomVideoLocal extends StatefulWidget {
   final File imageUrl;
@@ -23,23 +24,19 @@ class CustomVideoLocal extends StatefulWidget {
 }
 
 class _CustomVideoLocalState extends State<CustomVideoLocal> {
-  VideoPlayerController _controller;
+  FlickManager flickManager;
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.file(widget.imageUrl);
 
-    _controller.addListener(() {
-      setState(() {});
-    });
-    _controller.setLooping(true);
-    _controller.initialize().then((_) => setState(() {}));
-    _controller.play();
+    flickManager = FlickManager(
+      videoPlayerController: VideoPlayerController.file(widget.imageUrl),
+    );
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    flickManager.dispose();
     super.dispose();
   }
 
@@ -49,14 +46,25 @@ class _CustomVideoLocalState extends State<CustomVideoLocal> {
       width: widget.width,
       height: widget.height,
       padding: const EdgeInsets.all(20),
-      child: AspectRatio(
-        aspectRatio: _controller.value.aspectRatio,
-        child: Stack(
-          alignment: Alignment.bottomCenter,
-          children: <Widget>[
-            VideoPlayer(_controller),
-            VideoProgressIndicator(_controller, allowScrubbing: true),
-          ],
+      child: VisibilityDetector(
+        key: ObjectKey(flickManager),
+        onVisibilityChanged: (visibility) {
+          if (visibility.visibleFraction == 0 && this.mounted) {
+            flickManager.flickControlManager?.autoPause();
+          } else if (visibility.visibleFraction == 1) {
+            flickManager.flickControlManager?.autoResume();
+          }
+        },
+        child: Container(
+          child: FlickVideoPlayer(
+            flickManager: flickManager,
+            flickVideoWithControls: FlickVideoWithControls(
+              controls: FlickPortraitControls(),
+            ),
+            flickVideoWithControlsFullscreen: FlickVideoWithControls(
+              controls: FlickLandscapeControls(),
+            ),
+          ),
         ),
       ),
     );

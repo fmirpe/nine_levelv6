@@ -7,6 +7,10 @@ String getAgoraAppId() {
   return "5f890d8c59d9407b937cf7e1fcf23a19"; // Return Your Agora App Id
 }
 
+String getOneSignalAppId() {
+  return "d4a4c870-e723-4d3b-b027-5ad755161daf"; // Return Your Agora App Id
+}
+
 checkNoSignleDigit(int no) {
   int len = no.toString().length;
   if (len == 1) {

@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:nine_levelv6/widgets/indicators.dart';
-import 'package:video_player/video_player.dart';
+import 'package:nine_levelv6/components/flick_multi_player.dart';
+import 'package:nine_levelv6/utils/constants.dart';
+import 'package:visibility_detector/visibility_detector.dart';
+import 'flick_multi_manager.dart';
 
 class CustomVideo extends StatefulWidget {
   final String imageUrl;
@@ -21,24 +23,17 @@ class CustomVideo extends StatefulWidget {
 }
 
 class _CustomVideoState extends State<CustomVideo> {
-  VideoPlayerController _controller;
+  FlickMultiManager flickManager;
 
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.network(widget.imageUrl);
 
-    _controller.addListener(() {
-      setState(() {});
-    });
-    _controller.setLooping(false);
-    _controller.initialize().then((_) => setState(() {}));
-    //_controller.play();
+    flickManager = new FlickMultiManager();
   }
 
   @override
   void dispose() {
-    _controller.dispose();
     super.dispose();
   }
 
@@ -47,15 +42,21 @@ class _CustomVideoState extends State<CustomVideo> {
     return Container(
       width: widget.width,
       height: widget.height,
-      padding: const EdgeInsets.all(20),
-      child: AspectRatio(
-        aspectRatio: _controller.value.aspectRatio,
-        child: Stack(
-          alignment: Alignment.bottomCenter,
-          children: <Widget>[
-            VideoPlayer(_controller),
-            VideoProgressIndicator(_controller, allowScrubbing: true),
-          ],
+      padding: const EdgeInsets.all(5),
+      child: VisibilityDetector(
+        key: ObjectKey(flickManager),
+        onVisibilityChanged: (visibility) {
+          if (visibility.visibleFraction == 0 && this.mounted) {
+            flickManager.pause();
+          }
+        },
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(5),
+          child: FlickMultiPlayer(
+            url: widget.imageUrl,
+            flickMultiManager: flickManager,
+            mute: ThemeNotifier().muteVideo,
+          ),
         ),
       ),
     );

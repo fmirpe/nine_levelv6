@@ -1,8 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_sound/flutter_sound.dart';
 import 'package:nine_levelv6/components/text_time.dart';
 import 'package:nine_levelv6/models/enum/message_type.dart';
+import 'package:nine_levelv6/utils/demo_active_codec.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 class ChatBubble extends StatefulWidget {
@@ -43,6 +45,14 @@ class _ChatBubbleState extends State<ChatBubble> {
     } else {
       return Colors.grey[50];
     }
+  }
+
+  Future<Track> _createRemoteTrack(BuildContext context) async {
+    var track = Track();
+
+    track = Track(trackPath: widget.message, codec: ActiveCodec().codec);
+
+    return track;
   }
 
   @override
@@ -92,13 +102,19 @@ class _ChatBubbleState extends State<ChatBubble> {
                               : Theme.of(context).textTheme.headline6.color,
                         ),
                       )
-                    : CachedNetworkImage(
-                        imageUrl: "${widget.message}",
-                        maxWidthDiskCache: 200,
-                        //height: 200,
-                        width: MediaQuery.of(context).size.width / 1.3,
-                        fit: BoxFit.contain,
-                      ),
+                    : widget.type == MessageType.IMAGE
+                        ? CachedNetworkImage(
+                            imageUrl: "${widget.message}",
+                            maxWidthDiskCache: 200,
+                            //height: 200,
+                            width: MediaQuery.of(context).size.width / 1.3,
+                            fit: BoxFit.contain,
+                          )
+                        : SoundPlayerUI.fromLoader(
+                            _createRemoteTrack,
+                            showTitle: false,
+                            audioFocus: AudioFocus.requestFocusAndDuckOthers,
+                          ),
               ),
             ],
           ),

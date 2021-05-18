@@ -26,8 +26,14 @@ class Message {
     receiverUid = json['receiverUid'];
     if (json['type'] == 'text') {
       type = MessageType.TEXT;
-    } else {
+    } else if (json['type'] == 'image') {
       type = MessageType.IMAGE;
+    } else if (json['type'] == 'audio') {
+      type = MessageType.AUDIO;
+    } else if (json['type'] == 'video') {
+      type = MessageType.VIDEO;
+    } else {
+      type = MessageType.TEXT;
     }
     time = json['time'];
     isRead = json['isRead'];
@@ -41,8 +47,14 @@ class Message {
     data['receiverUid'] = this.receiverUid;
     if (this.type == MessageType.TEXT) {
       data['type'] = 'text';
-    } else {
+    } else if (this.type == MessageType.IMAGE) {
       data['type'] = 'image';
+    } else if (this.type == MessageType.AUDIO) {
+      data['type'] = 'audio';
+    } else if (this.type == MessageType.VIDEO) {
+      data['type'] = 'video';
+    } else {
+      data['type'] = 'text';
     }
     data['time'] = this.time;
     data['isRead'] = this.isRead;

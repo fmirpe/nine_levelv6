@@ -33,6 +33,15 @@ class ChatService {
     return imageUrl;
   }
 
+  Future<String> uploadAudio(File audio, String chatId) async {
+    Reference storageReference =
+        storage.ref().child("chats").child(chatId).child(uuid.v4());
+    UploadTask uploadTask = storageReference.putFile(audio);
+    await uploadTask.whenComplete(() => null);
+    String imageUrl = await storageReference.getDownloadURL();
+    return imageUrl;
+  }
+
   readMessage(String chatId, String user) async {
     var snapusuario = await usersRef.doc(user).get();
 

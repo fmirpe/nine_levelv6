@@ -16,4 +16,8 @@ class UserViewModel extends ChangeNotifier {
   updateToken(String token) {
     userService.updateToken(token);
   }
+
+  Future<String> getToken(String user) async {
+    return await userService.getToken(user);
+  }
 }

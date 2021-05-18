@@ -12,10 +12,9 @@ import 'package:nine_levelv6/models/user.dart';
 import 'package:nine_levelv6/pages/profile.dart';
 import 'package:nine_levelv6/screens/comment.dart';
 import 'package:nine_levelv6/screens/view_image.dart';
+import 'package:nine_levelv6/screens/view_video.dart';
 import 'package:nine_levelv6/utils/firebase.dart';
 import 'package:timeago/timeago.dart' as timeago;
-
-import 'package:flutter_google_ad_manager/flutter_google_ad_manager.dart';
 
 class UserPost extends StatefulWidget {
   final PostModel post;
@@ -29,8 +28,6 @@ class UserPost extends StatefulWidget {
 class _UserPostState extends State<UserPost> {
   final DateTime timestamp = DateTime.now();
 
-  DFPRewardedAd _rewardedAd;
-
   currentUserId() {
     return firebaseAuth.currentUser.uid;
   }
@@ -38,48 +35,11 @@ class _UserPostState extends State<UserPost> {
   @override
   void initState() {
     super.initState();
-    // _rewardedAd = DFPRewardedAd(
-    //   isDevelop: true,
-    //   adUnitId: "ca-app-pub-6685643423012004~3288192837",
-    //   onAdLoaded: () {
-    //     print('rewardedAd onAdLoaded');
-    //   },
-    //   onAdFailedToLoad: (errorCode) {
-    //     print('rewardedAd onAdFailedToLoad: errorCode:$errorCode');
-    //   },
-    //   onAdOpened: () {
-    //     print('rewardedAd onAdOpened');
-    //   },
-    //   onAdClosed: () {
-    //     print('rewardedAd onAdClosed');
-    //     _rewardedAd.load();
-    //   },
-    //   onAdLeftApplication: () {
-    //     print('rewardedAd onAdLeftApplication');
-    //   },
-    //   onRewarded: (String type, int amount) async {
-    //     print('rewardedAd onRewarded: type:$type amount:$amount');
-    //     var ownerId = widget.post.ownerId;
-    //     print(ownerId);
-    //     await updateMoneyUser(ownerId, amount);
-
-    //     var userId = currentUserId();
-    //     print(userId);
-    //     await updateMoneyUser(userId, amount);
-    //   },
-    //   onVideoStarted: () {
-    //     print('rewardedAd onVideoStarted');
-    //   },
-    //   onVideoCompleted: () {
-    //     print('rewardedAd onVideoCompleted');
-    //   },
-    // );
-    // _rewardedAd.load();
   }
 
   @override
   void dispose() {
-    _rewardedAd.dispose();
+    //_rewardedAd.dispose();
     super.dispose();
   }
 
@@ -91,7 +51,9 @@ class _UserPostState extends State<UserPost> {
       child: OpenContainer(
         //transitionType: ContainerTransitionType.fade,
         openBuilder: (BuildContext context, VoidCallback _) {
-          return ViewImage(post: widget.post);
+          return widget.post.type == 1
+              ? ViewImage(post: widget.post)
+              : ViewVideo(post: widget.post);
         },
         closedElevation: 0.0,
         closedShape: const RoundedRectangleBorder(
@@ -291,7 +253,7 @@ class _UserPostState extends State<UserPost> {
 
     if (isNotMe) {
       DocumentSnapshot doc = await usersRef.doc(currentUserId()).get();
-      user = UserModel.fromJson(doc.data());
+      var user = UserModel.fromJson(doc.data());
       notificationRef
           .doc(widget.post.ownerId)
           .collection('notifications')
@@ -313,7 +275,7 @@ class _UserPostState extends State<UserPost> {
 
     if (isNotMe) {
       DocumentSnapshot doc = await usersRef.doc(currentUserId()).get();
-      user = UserModel.fromJson(doc.data());
+      var user = UserModel.fromJson(doc.data());
       notificationRef
           .doc(widget.post.ownerId)
           .collection('notifications')
