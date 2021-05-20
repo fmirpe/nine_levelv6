@@ -32,7 +32,7 @@ class _LandingState extends State<Landing> {
               ),
             ),
             Text(
-              'Nine Level',
+              Constants.appName,
               style: TextStyle(
                 fontSize: 28.0,
                 fontWeight: FontWeight.w900,

@@ -49,7 +49,7 @@ class _CreatePostVideoState extends State<CreatePostVideo> {
                 onTap: () async {
                   await viewModel.uploadPostsVideo();
                   Navigator.pop(context);
-                  viewModel.resetPost();
+                  //viewModel.resetPost();
                 },
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),

@@ -48,7 +48,7 @@ class _CreatePostState extends State<CreatePost> {
                 onTap: () async {
                   await viewModel.uploadPosts();
                   Navigator.pop(context);
-                  viewModel.resetPost();
+                  //viewModel.resetPost();
                 },
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),

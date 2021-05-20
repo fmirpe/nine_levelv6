@@ -79,7 +79,7 @@ class VideoCallScreenState extends State<VideoCallScreen> {
 
   @override
   void dispose() {
-    print("\n============ ON DISPOSE CALLED ===============\n");
+    // print("\n============ ON DISPOSE CALLED ===============\n");
     super.dispose();
 
     if (meetingTimer != null) {
@@ -136,7 +136,7 @@ class VideoCallScreenState extends State<VideoCallScreen> {
   /// agora event handlers
   void _addAgoraEventHandlers() {
     AgoraRtcEngine.onError = (dynamic code) {
-      print("======== AGORA ERROR  : ======= " + code.toString());
+      // print("======== AGORA ERROR  : ======= " + code.toString());
 
       setState(() {
         final info = 'onError: $code';
@@ -144,7 +144,7 @@ class VideoCallScreenState extends State<VideoCallScreen> {
       });
     };
     AgoraRtcEngine.onUserOffline = (int uid, int reason) {
-      print("======== AGORA User OFFLINE : ======= " + reason.toString());
+      // print("======== AGORA User OFFLINE : ======= " + reason.toString());
 
       setState(() {
         final info = 'userOffline: $uid';
@@ -158,9 +158,9 @@ class VideoCallScreenState extends State<VideoCallScreen> {
       int uid,
       int elapsed,
     ) {
-      print("======================================");
-      print("        ON JOIN CHANNEL SUCESS        ");
-      print("======================================");
+      // print("======================================");
+      // print("        ON JOIN CHANNEL SUCESS        ");
+      // print("======================================");
       setState(() {
         final info = 'onJoinChannel: $channel, uid: $uid';
         _infoStrings.add(info);
@@ -175,9 +175,9 @@ class VideoCallScreenState extends State<VideoCallScreen> {
     };
 
     AgoraRtcEngine.onUserJoined = (int uid, int elapsed) {
-      print("======================================");
-      print("             User Joined              ");
-      print("======================================");
+      // print("======================================");
+      // print("             User Joined              ");
+      // print("======================================");
 
       if (meetingTimer != null) {
         if (!meetingTimer.isActive) {
@@ -196,9 +196,9 @@ class VideoCallScreenState extends State<VideoCallScreen> {
       });
     };
     AgoraRtcEngine.onNetworkTypeChanged = (int type) {
-      print("=========NETWORK TYPE=======");
-      print("=======     " + type.toString() + "   =====");
-      print("============================");
+      // print("=========NETWORK TYPE=======");
+      // print("=======     " + type.toString() + "   =====");
+      // print("============================");
     };
     AgoraRtcEngine.onNetworkQuality = (int uid, int txQuality, int rxQuality) {
       setState(() {
@@ -219,7 +219,7 @@ class VideoCallScreenState extends State<VideoCallScreen> {
     };
 
     AgoraRtcEngine.onUserMuteAudio = (int uid, bool muted) {
-      print(" USER MIC MUTE ");
+      // print(" USER MIC MUTE ");
     };
   }
 
@@ -250,9 +250,9 @@ class VideoCallScreenState extends State<VideoCallScreen> {
 
   Widget buildJoinUserUI() {
     final views = _getRenderViews();
-    print("=================================");
-    print("           Length " + views.length.toString());
-    print("=================================");
+    // print("=================================");
+    // print("           Length " + views.length.toString());
+    // print("=================================");
 
     switch (views.length) {
       case 1:
@@ -518,7 +518,7 @@ class VideoCallScreenState extends State<VideoCallScreen> {
   }
 
   void addLogToList(String info) {
-    print(info);
+    // print(info);
     setState(() {
       _infoStrings.insert(0, info);
     });

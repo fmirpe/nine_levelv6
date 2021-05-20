@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:nine_levelv6/components/flick_multi_manager.dart';
-import 'package:nine_levelv6/components/flick_multi_player.dart';
 import 'package:nine_levelv6/models/post.dart';
 import 'package:nine_levelv6/screens/view_image.dart';
 import 'package:nine_levelv6/screens/view_video.dart';
 import 'package:nine_levelv6/widgets/cached_image.dart';
+import 'package:video_thumbnail_generator/video_thumbnail_generator.dart';
 
 class PostTile extends StatefulWidget {
   final PostModel post;
@@ -48,10 +48,9 @@ class _PostTileState extends State<PostTile> {
             ),
             child: widget.post.type == 1
                 ? cachedNetworkImage(widget.post.mediaUrl)
-                : FlickMultiPlayer(
-                    url: widget.post.mediaUrl,
-                    flickMultiManager: flickManager,
-                    mute: true,
+                : ThumbnailImage(
+                    videoUrl: widget.post.mediaUrl,
+                    fit: BoxFit.cover,
                   ),
           ),
         ),

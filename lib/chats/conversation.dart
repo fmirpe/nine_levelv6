@@ -491,10 +491,10 @@ class _ConversationState extends State<Conversation> {
                 Navigator.of(context).pop();
               },
               onStart: () {
-                print("Iniciando");
+                // print("Iniciando");
               },
               onPaused: (media, isPaused) async {
-                print("Pausada------>");
+                // print("Pausada------>");
                 var tamano = await makeBuffer(track.trackPath);
                 if (tamano.length > 0 && isPaused) {
                   this.setState(() {
@@ -504,7 +504,7 @@ class _ConversationState extends State<Conversation> {
                 }
               },
               onStopped: (media) async {
-                print("Paro------>");
+                // print("Paro------>");
                 var tamano = await makeBuffer(track.trackPath);
                 if (tamano.length > 0) {
                   this.setState(() {
@@ -547,7 +547,7 @@ class _ConversationState extends State<Conversation> {
 
     if (msg.isNotEmpty) {
       if (isFirst) {
-        print("FIRST");
+        // print("FIRST");
         String id = await viewModel.sendFirstMessage(widget.userId, message);
         setState(() {
           isFirst = false;
@@ -594,7 +594,7 @@ class _ConversationState extends State<Conversation> {
 
     if (msg.isNotEmpty) {
       if (isFirst) {
-        print("FIRST");
+        // print("FIRST");
         String id = await viewModel.sendFirstMessage(widget.userId, message);
         setState(() {
           isFirst = false;
@@ -611,9 +611,9 @@ class _ConversationState extends State<Conversation> {
   }
 
   void sendNotification(String chatid, String userId, Message message) async {
-    var documentSnapshot = await usersRef.doc(userId).get();
+    //var documentSnapshot = await usersRef.doc(userId).get();
 
-    UserModel userdest = UserModel.fromJson(documentSnapshot.data());
+    //UserModel userdest = UserModel.fromJson(documentSnapshot.data());
 
     var map = {"chatId": chatid, "userId": userId};
 
@@ -657,9 +657,9 @@ class _ConversationState extends State<Conversation> {
         ],
       );
 
-      var response = await OneSignal.shared.postNotification(notification);
+      await OneSignal.shared.postNotification(notification);
 
-      print("Sent notification with response: $response");
+      // print("Sent notification with response: $response");
     });
     //}
   }

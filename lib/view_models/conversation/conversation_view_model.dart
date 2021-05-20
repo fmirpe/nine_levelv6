@@ -15,6 +15,10 @@ class ConversationViewModel extends ChangeNotifier {
   final picker = ImagePicker();
   File image;
 
+  Future<String> searhMessage(String oriuserid, String destuserid) async {
+    return await chatService.searhMessage(oriuserid, destuserid);
+  }
+
   sendMessage(String chatId, Message message) {
     chatService.sendMessage(
       message,

@@ -18,7 +18,7 @@ class CallMethods {
       await callsRef.doc(call.receiverId).set(hasNotDialledMap);
       return true;
     } catch (e) {
-      print(e);
+      // print(e);
       return false;
     }
   }
@@ -29,7 +29,7 @@ class CallMethods {
       await callsRef.doc(call.receiverId).delete();
       return true;
     } catch (e) {
-      print(e);
+      // print(e);
       return false;
     }
   }

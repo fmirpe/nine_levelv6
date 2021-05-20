@@ -47,6 +47,8 @@ class StreamBuilderWrapper extends StatelessWidget {
                   padding: padding,
                   scrollDirection: scrollDirection,
                   itemCount: list.length,
+                  addAutomaticKeepAlives: true,
+                  addRepaintBoundaries: true,
                   shrinkWrap: shrinkWrap,
                   physics: physics,
                   itemBuilder: (BuildContext context, int index) {

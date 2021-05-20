@@ -65,25 +65,25 @@ class PostsViewModel extends ChangeNotifier {
   }
 
   setUsername(String val) {
-    print('SetName $val');
+    // print('SetName $val');
     username = val;
     notifyListeners();
   }
 
   setDescription(String val) {
-    print('SetDescription $val');
+    // print('SetDescription $val');
     description = val;
     notifyListeners();
   }
 
   setLocation(String val) {
-    print('SetCountry $val');
+    // print('SetCountry $val');
     location = val;
     notifyListeners();
   }
 
   setBio(String val) {
-    print('SetBio $val');
+    // print('SetBio $val');
     bio = val;
     notifyListeners();
   }
@@ -132,7 +132,7 @@ class PostsViewModel extends ChangeNotifier {
     try {
       PickedFile pickedFile = await picker.getVideo(
         source: camera ? ImageSource.camera : ImageSource.gallery,
-        maxDuration: Duration(seconds: 40),
+        maxDuration: Duration(seconds: 60),
       );
       mediaUrl = File(pickedFile.path);
       loading = false;
@@ -148,11 +148,11 @@ class PostsViewModel extends ChangeNotifier {
     loading = true;
     notifyListeners();
     LocationPermission permission = await Geolocator.checkPermission();
-    print(permission);
+    // print(permission);
     if (permission == LocationPermission.denied ||
         permission == LocationPermission.deniedForever) {
-      LocationPermission rPermission = await Geolocator.requestPermission();
-      print(rPermission);
+      //LocationPermission rPermission = await Geolocator.requestPermission();
+      // print(rPermission);
       await getLocation();
     } else {
       position = await Geolocator.getCurrentPosition(
@@ -162,7 +162,7 @@ class PostsViewModel extends ChangeNotifier {
       placemark = placemarks[0];
       location = " ${placemarks[0].locality}, ${placemarks[0].country}";
       locationTEC.text = location;
-      print(location);
+      // print(location);
     }
     loading = false;
     notifyListeners();
@@ -177,7 +177,7 @@ class PostsViewModel extends ChangeNotifier {
       resetPost();
       notifyListeners();
     } catch (e) {
-      print(e);
+      // print(e);
       loading = false;
       resetPost();
       showInSnackBar('Uploaded successfully!');
@@ -194,7 +194,7 @@ class PostsViewModel extends ChangeNotifier {
       resetPost();
       notifyListeners();
     } catch (e) {
-      print(e);
+      // print(e);
       loading = false;
       resetPost();
       showInSnackBar('Uploaded successfully!');
@@ -216,7 +216,7 @@ class PostsViewModel extends ChangeNotifier {
             .pushReplacement(CupertinoPageRoute(builder: (_) => TabScreen()));
         notifyListeners();
       } catch (e) {
-        print(e);
+        // print(e);
         loading = false;
         showInSnackBar('Uploaded successfully!');
         notifyListeners();

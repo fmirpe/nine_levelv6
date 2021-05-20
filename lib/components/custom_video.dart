@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:nine_levelv6/components/flick_multi_player.dart';
-import 'package:nine_levelv6/utils/constants.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'flick_multi_manager.dart';
 
@@ -43,19 +42,19 @@ class _CustomVideoState extends State<CustomVideo> {
       width: widget.width,
       height: widget.height,
       padding: const EdgeInsets.all(5),
-      child: VisibilityDetector(
-        key: ObjectKey(flickManager),
-        onVisibilityChanged: (visibility) {
-          if (visibility.visibleFraction == 0 && this.mounted) {
-            flickManager.pause();
-          }
-        },
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(5),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(5),
+        child: VisibilityDetector(
+          key: ObjectKey(flickManager),
+          onVisibilityChanged: (visibility) {
+            if (visibility.visibleFraction == 0 && this.mounted) {
+              flickManager.pause();
+            }
+          },
           child: FlickMultiPlayer(
             url: widget.imageUrl,
             flickMultiManager: flickManager,
-            mute: ThemeNotifier().muteVideo,
+            mute: true,
           ),
         ),
       ),

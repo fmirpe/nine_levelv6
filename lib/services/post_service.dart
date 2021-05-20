@@ -36,7 +36,7 @@ class PostService extends Service {
       "location": location ?? "Nine Level",
       "timestamp": Timestamp.now(),
     }).catchError((e) {
-      print(e);
+      // print(e);
     });
   }
 
@@ -57,7 +57,7 @@ class PostService extends Service {
       "location": location ?? "Nine Level",
       "timestamp": Timestamp.now(),
     }).catchError((e) {
-      print(e);
+      // print(e);
     });
   }
 

@@ -49,24 +49,24 @@ class _SettingState extends State<Setting> {
                 ),
               ),
             ),
-            ListTile(
-              title: Text(
-                "Mute Video",
-                style: TextStyle(
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-              subtitle: Text("Mute all video in the posts"),
-              trailing: Consumer<ThemeNotifier>(
-                builder: (context, notifier, child) => CupertinoSwitch(
-                  onChanged: (val) {
-                    notifier.toggleMuteVideo();
-                  },
-                  value: notifier.muteVideo,
-                  activeColor: Constants.lightButtom,
-                ),
-              ),
-            ),
+            // ListTile(
+            //   title: Text(
+            //     "Mute Video",
+            //     style: TextStyle(
+            //       fontWeight: FontWeight.w900,
+            //     ),
+            //   ),
+            //   subtitle: Text("Mute all video in the posts"),
+            //   trailing: Consumer<ThemeNotifier>(
+            //     builder: (context, notifier, child) => CupertinoSwitch(
+            //       onChanged: (val) {
+            //         notifier.toggleMuteVideo();
+            //       },
+            //       value: notifier.muteVideo,
+            //       activeColor: Constants.lightButtom,
+            //     ),
+            //   ),
+            // ),
             Divider(),
             SizedBox(height: 10.0),
             // Column(

@@ -11,7 +11,9 @@ import 'package:nine_levelv6/models/user.dart';
 import 'package:nine_levelv6/pages/profile.dart';
 import 'package:nine_levelv6/utils/constants.dart';
 import 'package:nine_levelv6/utils/firebase.dart';
+import 'package:nine_levelv6/view_models/conversation/conversation_view_model.dart';
 import 'package:nine_levelv6/widgets/indicators.dart';
+import 'package:provider/provider.dart';
 
 class Search extends StatefulWidget {
   @override
@@ -160,14 +162,19 @@ class _SearchState extends State<Search> {
                     user?.email,
                   ),
                   trailing: GestureDetector(
-                    onTap: () {
+                    onTap: () async {
                       Navigator.pop(context);
+                      var conversacion = Provider.of<ConversationViewModel>(
+                          context,
+                          listen: false);
+                      var chatId = await conversacion.searhMessage(
+                          doc.id, currentUserId());
                       Navigator.push(
                         context,
                         CupertinoPageRoute(
                           builder: (_) => Conversation(
                             userId: doc.id,
-                            chatId: 'newChat',
+                            chatId: chatId,
                           ),
                         ),
                       );

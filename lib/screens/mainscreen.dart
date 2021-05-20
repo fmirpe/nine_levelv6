@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:nine_levelv6/chats/conversation.dart';
+import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:nine_levelv6/chats/recent_chats.dart';
 import 'package:nine_levelv6/components/fab_container.dart';
 import 'package:nine_levelv6/helpers/utils.dart';
@@ -29,17 +29,20 @@ class TabScreen extends StatefulWidget {
   _TabScreenState createState() => _TabScreenState();
 }
 
-class _TabScreenState extends State<TabScreen> {
+class _TabScreenState extends State<TabScreen>
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   int _page = 0;
   String version = "1.0.0";
   String buildVersion = "7";
+
+  bool isLoading = true;
+  bool initLoaded = true;
 
   FirebaseMessaging firebaseMessaging = FirebaseMessaging();
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
   bool confignotification = false;
 
-  String _debugLabelString = "";
   // CHANGE THIS parameter to true if you want to test GDPR privacy consent
   bool _requireConsent = true;
 
@@ -81,6 +84,7 @@ class _TabScreenState extends State<TabScreen> {
     super.initState();
     initPlatformState();
     cargaDatos();
+    WidgetsBinding.instance.addObserver(this);
 
     //if (!confignotification) {
     //  registerNotification();
@@ -89,6 +93,21 @@ class _TabScreenState extends State<TabScreen> {
     _handleConsent();
     //_handleSetExternalUserId();
     _handleSetEmail();
+  }
+
+  @override
+  void didChangeDependencies() {
+    if (initLoaded) {
+      initLoaded = false;
+      isLoading = false;
+    }
+    super.didChangeDependencies();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
@@ -106,18 +125,19 @@ class _TabScreenState extends State<TabScreen> {
 
     OneSignal.shared
         .setNotificationReceivedHandler((OSNotification notification) {
-      print(
-          "Received notification: \n${notification.jsonRepresentation().replaceAll("\\n", "\n")}");
+      FlutterRingtonePlayer.playNotification();
+      // print(
+      //     "Received notification: \n${notification.jsonRepresentation().replaceAll("\\n", "\n")}");
     });
 
     OneSignal.shared.setNotificationOpenedHandler(
         (OSNotificationOpenedResult result) async {
-      print(
-          "Opened notification: \n${result.notification.jsonRepresentation().replaceAll("\\n", "\n")}");
+      // print(
+      //     "Opened notification: \n${result.notification.jsonRepresentation().replaceAll("\\n", "\n")}");
 
-      var chatId = await result.notification.payload.additionalData["chatId"];
-      var userId = await result.notification.payload.additionalData["userId"];
-      print(userId);
+      //var chatId = await result.notification.payload.additionalData["chatId"];
+      //var userId = await result.notification.payload.additionalData["userId"];
+      //print(userId);
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -128,22 +148,22 @@ class _TabScreenState extends State<TabScreen> {
 
     OneSignal.shared
         .setInAppMessageClickedHandler((OSInAppMessageAction action) {
-      print(
-          "In App Message Clicked: \n${action.jsonRepresentation().replaceAll("\\n", "\n")}");
+      // print(
+      //     "In App Message Clicked: \n${action.jsonRepresentation().replaceAll("\\n", "\n")}");
     });
 
     OneSignal.shared
         .setSubscriptionObserver((OSSubscriptionStateChanges changes) {
-      print("SUBSCRIPTION STATE CHANGED: ${changes.jsonRepresentation()}");
+      // print("SUBSCRIPTION STATE CHANGED: ${changes.jsonRepresentation()}");
     });
 
     OneSignal.shared.setPermissionObserver((OSPermissionStateChanges changes) {
-      print("PERMISSION STATE CHANGED: ${changes.jsonRepresentation()}");
+      // print("PERMISSION STATE CHANGED: ${changes.jsonRepresentation()}");
     });
 
     OneSignal.shared.setEmailSubscriptionObserver(
         (OSEmailSubscriptionStateChanges changes) {
-      print("EMAIL SUBSCRIPTION STATE CHANGED ${changes.jsonRepresentation()}");
+      // print("EMAIL SUBSCRIPTION STATE CHANGED ${changes.jsonRepresentation()}");
     });
 
     // NOTE: Replace with your own app ID from https://www.onesignal.com
@@ -152,20 +172,20 @@ class _TabScreenState extends State<TabScreen> {
     OneSignal.shared
         .setInFocusDisplayType(OSNotificationDisplayType.notification);
 
-    bool requiresConsent = await OneSignal.shared.requiresUserPrivacyConsent();
+    await OneSignal.shared.requiresUserPrivacyConsent();
   }
 
   void _handlePromptForPushPermission() {
-    print("Prompting for Permission");
+    // print("Prompting for Permission");
     OneSignal.shared.promptUserForPushNotificationPermission().then((accepted) {
-      print("Accepted permission: $accepted");
+      // print("Accepted permission: $accepted");
     });
   }
 
   void _handleGetPermissionSubscriptionState() {
-    print("Getting permissionSubscriptionState");
+    // print("Getting permissionSubscriptionState");
     OneSignal.shared.getPermissionSubscriptionState().then((status) {
-      print(status.jsonRepresentation());
+      // print(status.jsonRepresentation());
       var userId = status.subscriptionStatus.userId;
 
       UserViewModel viewModel =
@@ -180,25 +200,25 @@ class _TabScreenState extends State<TabScreen> {
     viewModel.setUser();
     var user = Provider.of<UserViewModel>(context, listen: false).user;
 
-    print("Setting email");
+    // print("Setting email");
 
     OneSignal.shared.setEmail(email: user.email).whenComplete(() {
-      print("Successfully set email");
+      // print("Successfully set email");
       _handleGetPermissionSubscriptionState();
     }).catchError((error) {
-      print("Failed to set email with error: $error");
+      // print("Failed to set email with error: $error");
     });
   }
 
   void _handleConsent() {
-    print("Setting consent to true");
+    // print("Setting consent to true");
     OneSignal.shared.consentGranted(true);
 
-    print("Setting state");
+    // print("Setting state");
   }
 
   void configLocalNotification() {
-    print('configLocalNotification');
+    // print('configLocalNotification');
     var initializationSettingsAndroid =
         new AndroidInitializationSettings('@mipmap/launcher_icon');
     var initializationSettingsIOS = new IOSInitializationSettings();
@@ -210,7 +230,7 @@ class _TabScreenState extends State<TabScreen> {
   }
 
   Future onSelectNotification(payload) async {
-    print('onSelectNotification');
+    // print('onSelectNotification');
     // Fluttertoast.showToast(
     //     msg: "New Message",
     //     durationTime: 5,
@@ -227,17 +247,17 @@ class _TabScreenState extends State<TabScreen> {
   }
 
   void registerNotification() {
-    print('registerNotification');
+    // print('registerNotification');
     firebaseMessaging.requestNotificationPermissions();
 
     firebaseMessaging.configure(
         onMessage: (Map<String, dynamic> message) async {
-      print('onMessage: $message');
+      // print('onMessage: $message');
       //_showNotificationWithDefaultSound(message['notification']);
       //String peerId = message['data']['peerId'];
       //String peerAvatar = message['data']['peerPhotoUrl'];
-      print(firebaseAuth.currentUser.uid);
-      print('Mensaje');
+      // print(firebaseAuth.currentUser.uid);
+      // print('Mensaje');
 
       _showNotificationWithDefaultSound(message);
 
@@ -246,22 +266,22 @@ class _TabScreenState extends State<TabScreen> {
       //     : showNotification(message['aps']['alert']);
       return;
     }, onResume: (Map<String, dynamic> message) {
-      print('onResume: $message');
+      // print('onResume: $message');
       return;
     }, onLaunch: (Map<String, dynamic> message) {
-      print('onLaunch: $message');
+      // print('onLaunch: $message');
       return;
     });
 
     firebaseMessaging.getToken().then((token) {
       final authService = Provider.of<UserViewModel>(context, listen: false);
-      print('token: $token');
+      // print('token: $token');
       authService.updateToken(token);
     });
   }
 
   void _showNotificationWithDefaultSound(message) async {
-    print('_showNotificationWithDefaultSound');
+    // print('_showNotificationWithDefaultSound');
     var androidPlatformChannelSpecifics = new AndroidNotificationDetails(
         'n9b6', 'N9-Chat', 'Chat Nine Level Beta 6',
         importance: Importance.high,
@@ -281,7 +301,7 @@ class _TabScreenState extends State<TabScreen> {
       payload: 'Default_Sound',
     );
 
-    print('Fin _showNotificationWithDefaultSound');
+    // print('Fin _showNotificationWithDefaultSound');
   }
 
   cargaDatos() async {
@@ -289,8 +309,8 @@ class _TabScreenState extends State<TabScreen> {
 
     //String appName = packageInfo.appName;
     //String packageName = packageInfo.packageName;
-    print(packageInfo.version);
-    print(packageInfo.buildNumber);
+    // print(packageInfo.version);
+    // print(packageInfo.buildNumber);
     version = packageInfo.version;
     buildVersion = packageInfo.buildNumber;
   }

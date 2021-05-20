@@ -30,7 +30,7 @@ class LoginViewModel extends ChangeNotifier {
           email: email,
           password: password,
         );
-        print(success);
+        // print(success);
         if (success) {
           Navigator.of(context)
               .pushReplacement(CupertinoPageRoute(builder: (_) => TabScreen()));
@@ -38,7 +38,7 @@ class LoginViewModel extends ChangeNotifier {
       } catch (e) {
         loading = false;
         notifyListeners();
-        print(e);
+        // print(e);
         showInSnackBar('${auth.handleFirebaseAuthError(e.toString())}');
       }
       loading = false;
@@ -51,7 +51,7 @@ class LoginViewModel extends ChangeNotifier {
     notifyListeners();
     FormState form = formKey.currentState;
     form.save();
-    print(Validations.validateEmail(email));
+    // print(Validations.validateEmail(email));
     if (Validations.validateEmail(email) != null) {
       showInSnackBar('Please input a valid email to reset your password.');
     } else {

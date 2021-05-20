@@ -4,7 +4,6 @@ import 'package:nine_levelv6/helpers/utils.dart';
 import 'package:nine_levelv6/models/call.dart';
 import 'package:nine_levelv6/resources/call_methods.dart';
 import 'package:nine_levelv6/screens/callscreens/call_screen.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class PickupScreen extends StatefulWidget {
   final Call call;

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:nine_levelv6/models/call.dart';
-import './time_left.dart';
 
 class ReceiverLeft extends StatefulWidget {
   final Call call;

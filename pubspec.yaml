@@ -15,7 +15,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.0.0+12
+version: 1.0.0+15
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
@@ -28,7 +28,7 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.0
-  google_sign_in: ^4.5.5
+  google_sign_in: any
   flutter_icons: ^1.1.0
   percent_indicator: ^2.1.8
   cached_network_image: ^2.3.2+1
@@ -54,11 +54,11 @@ dependencies:
   shared_preferences: ^0.5.12+4
   data_connection_checker: ^0.3.4
   hexcolor: ^2.0.3
-  # video_player: ^2.1.1
+  video_player: any
   get: ^4.1.4
   # agora_rtc_engine: 1.0.15
   agora_rtc_engine: 1.0.5
-  permission_handler:
+  permission_handler: any
   flutter_share: ^2.0.0
   signal_strength_indicator: ^0.4.0
   convex_bottom_bar: ^3.0.0   
@@ -70,14 +70,21 @@ dependencies:
   flutter_local_notifications: ^3.0.3
   onesignal_flutter: ^2.6.3
   flutter_sound: ^7.8.0
-  flick_video_player:
+  flick_video_player: any
   visibility_detector: ^0.2.0
   video_thumbnail_generator: ^0.0.8
+  # video_thumbnail: ^0.3.3
+  expandable_text: ^2.1.0+1
+  file_picker: ^1.13.3
+  flutter_statusbarcolor: ^0.2.3
+  simple_animations: ^2.2.1
+  
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
+  
+  build_runner: ^1.10.2
   flutter_launcher_icons: ^0.8.1
 
 flutter_icons:

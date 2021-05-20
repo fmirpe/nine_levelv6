@@ -10,6 +10,17 @@ import 'package:nine_levelv6/utils/firebase.dart';
 class ChatService {
   FirebaseStorage storage = FirebaseStorage.instance;
 
+  Future<String> searhMessage(String oriuserid, String destuserid) async {
+    var chats = await chatRef
+        .where('users', arrayContains: oriuserid)
+        .where('users', arrayContains: destuserid)
+        .get();
+    if (chats.docs.length == 0) {
+      return "newChat";
+    }
+    return chats.docs[0].id;
+  }
+
   sendMessage(Message message, String chatId) async {
     await chatRef.doc("$chatId").collection("messages").add(message.toJson());
     await chatRef.doc("$chatId").update({"lastTextTime": Timestamp.now()});

@@ -12,9 +12,10 @@ import 'package:nine_levelv6/models/user.dart';
 import 'package:nine_levelv6/pages/profile.dart';
 import 'package:nine_levelv6/screens/comment.dart';
 import 'package:nine_levelv6/screens/view_image.dart';
-import 'package:nine_levelv6/screens/view_video.dart';
 import 'package:nine_levelv6/utils/firebase.dart';
 import 'package:timeago/timeago.dart' as timeago;
+
+import 'package:expandable_text/expandable_text.dart';
 
 class UserPost extends StatefulWidget {
   final PostModel post;
@@ -51,9 +52,7 @@ class _UserPostState extends State<UserPost> {
       child: OpenContainer(
         //transitionType: ContainerTransitionType.fade,
         openBuilder: (BuildContext context, VoidCallback _) {
-          return widget.post.type == 1
-              ? ViewImage(post: widget.post)
-              : ViewVideo(post: widget.post);
+          return widget.post.type == 1 ? ViewImage(post: widget.post) : null;
         },
         closedElevation: 0.0,
         closedShape: const RoundedRectangleBorder(
@@ -168,14 +167,17 @@ class _UserPostState extends State<UserPost> {
                               widget.post.description.toString().isNotEmpty,
                           child: Padding(
                             padding: const EdgeInsets.only(left: 5.0, top: 3.0),
-                            child: Text(
-                              '${widget.post.description}',
+                            child: ExpandableText(
+                              widget.post.description,
+                              expandText: 'show more',
+                              collapseText: 'show less',
                               style: TextStyle(
                                 color:
                                     Theme.of(context).textTheme.caption.color,
                                 fontSize: 15.0,
                               ),
-                              maxLines: 2,
+                              maxLines: 3,
+                              linkColor: Colors.blue,
                             ),
                           ),
                         ),
@@ -274,8 +276,8 @@ class _UserPostState extends State<UserPost> {
     bool isNotMe = currentUserId() != widget.post.ownerId;
 
     if (isNotMe) {
-      DocumentSnapshot doc = await usersRef.doc(currentUserId()).get();
-      var user = UserModel.fromJson(doc.data());
+      //DocumentSnapshot doc = await usersRef.doc(currentUserId()).get();
+      //var user = UserModel.fromJson(doc.data());
       notificationRef
           .doc(widget.post.ownerId)
           .collection('notifications')

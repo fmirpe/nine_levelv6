@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +7,6 @@ import 'package:nine_levelv6/components/flick_multi_player.dart';
 import 'package:nine_levelv6/models/post.dart';
 import 'package:nine_levelv6/models/user.dart';
 import 'package:nine_levelv6/utils/firebase.dart';
-import 'package:nine_levelv6/widgets/indicators.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 class ViewVideo extends StatefulWidget {

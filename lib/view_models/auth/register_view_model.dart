@@ -35,7 +35,7 @@ class RegisterViewModel extends ChangeNotifier {
             password: password,
             country: country,
           );
-          print(success);
+          // print(success);
           if (success) {
             Navigator.of(context).pushReplacement(
                 CupertinoPageRoute(builder: (_) => ProfilePicture()));
@@ -43,7 +43,7 @@ class RegisterViewModel extends ChangeNotifier {
         } catch (e) {
           loading = false;
           notifyListeners();
-          print(e);
+          // print(e);
           showInSnackBar('${auth.handleFirebaseAuthError(e.toString())}');
         }
         loading = false;

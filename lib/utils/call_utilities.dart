@@ -1,10 +1,7 @@
 import 'dart:math';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:nine_levelv6/helpers/strings.dart';
 import 'package:nine_levelv6/models/call.dart';
-import 'package:nine_levelv6/models/log.dart';
 import 'package:nine_levelv6/models/user.dart';
 import 'package:nine_levelv6/resources/call_methods.dart';
 import 'package:nine_levelv6/screens/callscreens/call_screen.dart';

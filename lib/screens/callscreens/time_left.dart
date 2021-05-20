@@ -1,12 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:nine_levelv6/helpers/utils.dart';
 import 'package:nine_levelv6/models/call.dart';
 import 'package:nine_levelv6/models/user.dart';
 import 'package:nine_levelv6/utils/call_utilities.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class TimeLeft extends StatefulWidget {
   final Call call;

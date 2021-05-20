@@ -59,10 +59,26 @@ class FeedPlayerPortraitControls extends StatelessWidget {
                     color: Colors.black38,
                     borderRadius: BorderRadius.circular(20),
                   ),
+                  child: FlickPlayToggle(
+                    color: Colors.white,
+                  ),
+                ),
+                SizedBox(
+                  width: 10,
+                ),
+                Container(
+                  padding: EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                    color: Colors.black38,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
                   child: FlickSoundToggle(
                     toggleMute: () => flickMultiManager?.toggleMute(),
                     color: Colors.white,
                   ),
+                ),
+                SizedBox(
+                  width: 10,
                 ),
                 FlickFullScreenToggle(),
               ],
