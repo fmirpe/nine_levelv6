@@ -85,6 +85,7 @@ class _ViewVideoState extends State<ViewVideo> {
         child: FlickMultiPlayer(
           url: widget.post.mediaUrl,
           flickMultiManager: flickManager,
+          mute: true,
         ),
       ),
     );

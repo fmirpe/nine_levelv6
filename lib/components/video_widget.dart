@@ -4,8 +4,10 @@ import 'package:video_player/video_player.dart';
 class VideoWidget extends StatefulWidget {
   final String url;
   final bool play;
+  final bool local;
 
-  const VideoWidget({Key key, @required this.url, @required this.play})
+  const VideoWidget(
+      {Key key, @required this.url, @required this.play, this.local = false})
       : super(key: key);
   @override
   _VideoWidgetState createState() => _VideoWidgetState();
@@ -18,7 +20,9 @@ class _VideoWidgetState extends State<VideoWidget> {
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.network(widget.url);
+    _controller = widget.local
+        ? VideoPlayerController.asset(widget.url)
+        : VideoPlayerController.network(widget.url);
     _initializeVideoPlayerFuture = _controller.initialize().then((_) {
       // Ensure the first frame is shown after the video is initialized, even before the play button has been pressed.
       setState(() {});

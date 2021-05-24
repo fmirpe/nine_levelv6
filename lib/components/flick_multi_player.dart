@@ -1,4 +1,6 @@
 import 'package:nine_levelv6/components/portrait_controls.dart';
+import 'package:nine_levelv6/components/thumbnail_generator.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
 import 'package:video_thumbnail_generator/video_thumbnail_generator.dart';
 
 import './flick_multi_manager.dart';
@@ -53,8 +55,6 @@ class _FlickMultiPlayerState extends State<FlickMultiPlayer> {
     return VisibilityDetector(
       key: ObjectKey(flickManager),
       onVisibilityChanged: (visiblityInfo) {
-        //print("llllslslslslslsslslslslslslslslslslslslslslslslslslslslsls");
-        //print(visiblityInfo.visibleFraction);
         if (visiblityInfo.visibleFraction > 0.85) {
           widget.flickMultiManager.play(flickManager);
         }
@@ -67,9 +67,16 @@ class _FlickMultiPlayerState extends State<FlickMultiPlayer> {
               child: Stack(
                 children: <Widget>[
                   Positioned.fill(
-                    child: ThumbnailImage(
-                      videoUrl: widget.url,
-                      fit: BoxFit.cover,
+                    child: ThumbnailGenerator(
+                      thumbnailRequest: ThumbnailRequest(
+                        video: widget.url,
+                        thumbnailPath: null,
+                        imageFormat: ImageFormat.JPEG,
+                        maxHeight: 400,
+                        maxWidth: 500,
+                        timeMs: 0,
+                        quality: 100,
+                      ),
                     ),
                   ),
                   Positioned(
@@ -94,9 +101,16 @@ class _FlickMultiPlayerState extends State<FlickMultiPlayer> {
           ),
           flickVideoWithControlsFullscreen: FlickVideoWithControls(
             playerLoadingFallback: Center(
-              child: ThumbnailImage(
-                videoUrl: widget.url,
-                fit: BoxFit.fitWidth,
+              child: ThumbnailGenerator(
+                thumbnailRequest: ThumbnailRequest(
+                  video: widget.url,
+                  thumbnailPath: null,
+                  imageFormat: ImageFormat.JPEG,
+                  maxHeight: 400,
+                  maxWidth: 500,
+                  timeMs: 0,
+                  quality: 100,
+                ),
               ),
             ),
             controls: FlickLandscapeControls(),

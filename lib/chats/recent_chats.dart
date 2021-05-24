@@ -40,7 +40,7 @@ class Chats extends StatelessWidget {
             stream: userChatsStream(user.uid),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
-                List chatList = snapshot.data.documents;
+                List chatList = snapshot.data.docs;
                 if (chatList.isNotEmpty) {
                   return ListView.separated(
                     itemCount: chatList.length,
@@ -50,7 +50,7 @@ class Chats extends StatelessWidget {
                         stream: messageListStream(chatListSnapshot.id),
                         builder: (context, snapshot) {
                           if (snapshot.hasData) {
-                            List messages = snapshot.data.documents;
+                            List messages = snapshot.data.docs;
                             Message message =
                                 Message.fromJson(messages.first.data());
                             List users = chatListSnapshot.data()['users'];

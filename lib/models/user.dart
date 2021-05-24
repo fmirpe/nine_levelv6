@@ -11,6 +11,8 @@ class UserModel {
   Timestamp lastSeen;
   bool isOnline;
   int money;
+  bool isVerified;
+  String role;
 
   UserModel({
     this.username,
@@ -23,6 +25,8 @@ class UserModel {
     this.bio,
     this.country,
     this.money,
+    this.isVerified,
+    this.role,
   });
 
   UserModel.fromJson(Map<String, dynamic> json) {
@@ -36,6 +40,8 @@ class UserModel {
     bio = json['bio'];
     id = json['id'];
     money = json['money'];
+    isVerified = false;
+    role = "User";
   }
 
   Map<String, dynamic> toJson() {

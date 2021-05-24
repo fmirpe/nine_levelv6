@@ -6,6 +6,8 @@ class Constants {
   //App related strings
   static String appName = "Nine Level";
 
+  static String placeHolderImageRef = 'assets/images/user_placeholder.jpg';
+
   //Colors for theme
   static Color lightPrimary = Color(0xfff3f4f9);
   static Color darkPrimary = Color(0xff2B2B2B);

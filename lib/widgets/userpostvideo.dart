@@ -6,6 +6,9 @@ import 'package:flutter/material.dart';
 //import 'package:flutter_icons/flutter_icons.dart';
 import 'package:nine_levelv6/components/custom_card.dart';
 import 'package:nine_levelv6/components/custom_image.dart';
+import 'package:nine_levelv6/components/custom_video.dart';
+import 'package:nine_levelv6/components/flick_multi_manager.dart';
+import 'package:nine_levelv6/components/flick_multi_player.dart';
 import 'package:nine_levelv6/models/post.dart';
 import 'package:nine_levelv6/models/user.dart';
 import 'package:nine_levelv6/pages/profile.dart';
@@ -17,17 +20,19 @@ import 'package:timeago/timeago.dart' as timeago;
 import 'package:expandable_text/expandable_text.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
-class UserPost extends StatefulWidget {
+class UserPostVideo extends StatefulWidget {
   final PostModel post;
 
-  UserPost({this.post});
+  UserPostVideo({this.post});
 
   @override
-  _UserPostState createState() => _UserPostState();
+  _UserPostVideoState createState() => _UserPostVideoState();
 }
 
-class _UserPostState extends State<UserPost> {
+class _UserPostVideoState extends State<UserPostVideo> {
   final DateTime timestamp = DateTime.now();
+
+  FlickMultiManager flickManager;
 
   currentUserId() {
     return firebaseAuth.currentUser.uid;
@@ -36,6 +41,7 @@ class _UserPostState extends State<UserPost> {
   @override
   void initState() {
     super.initState();
+    flickManager = new FlickMultiManager();
   }
 
   @override
@@ -52,7 +58,7 @@ class _UserPostState extends State<UserPost> {
       child: OpenContainer(
         //transitionType: ContainerTransitionType.fade,
         openBuilder: (BuildContext context, VoidCallback _) {
-          return widget.post.type == 1 ? ViewImage(post: widget.post) : null;
+          return null;
         },
         closedElevation: 0.0,
         closedShape: const RoundedRectangleBorder(
@@ -72,12 +78,27 @@ class _UserPostState extends State<UserPost> {
                       topLeft: Radius.circular(5.0),
                       topRight: Radius.circular(5.0),
                     ),
-                    child: CustomImage(
-                      imageUrl: widget.post?.mediaUrl ?? '',
-                      height: MediaQuery.of(context).size.width, //300.0,
-                      fit: BoxFit.cover,
-                      width:
-                          MediaQuery.of(context).size.width, // double.infinity,
+                    child: VisibilityDetector(
+                      key: ObjectKey(flickManager),
+                      onVisibilityChanged: (visibility) {
+                        if (visibility.visibleFraction == 0 && this.mounted) {
+                          flickManager.pause();
+                        }
+                      },
+                      child: Container(
+                        width: MediaQuery.of(context).size.width,
+                        height: 450.0,
+                        padding: const EdgeInsets.all(5),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(5),
+                          child: FlickMultiPlayer(
+                            key: UniqueKey(),
+                            url: widget.post?.mediaUrl ?? '',
+                            flickMultiManager: flickManager,
+                            mute: true,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                   Padding(

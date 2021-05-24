@@ -523,7 +523,7 @@ class _ProfileState extends State<Profile> {
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
       stream: postRef
           .where('ownerId', isEqualTo: widget.profileId)
-          //.orderBy('timestamp', descending: true)
+          .orderBy('timestamp', descending: true)
           .snapshots(),
       physics: NeverScrollableScrollPhysics(),
       itemBuilder: (_, DocumentSnapshot snapshot) {
@@ -544,7 +544,7 @@ class _ProfileState extends State<Profile> {
       padding: const EdgeInsets.symmetric(horizontal: 10.0),
       stream: postRef
           .where('ownerId', isEqualTo: widget.profileId)
-          //.orderBy('timestamp', descending: true)
+          .orderBy('timestamp', descending: true)
           .snapshots(),
       physics: NeverScrollableScrollPhysics(),
       itemBuilder: (_, DocumentSnapshot snapshot) {
@@ -564,7 +564,7 @@ class _ProfileState extends State<Profile> {
           .snapshots(),
       builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (snapshot.hasData) {
-          List<QueryDocumentSnapshot> docs = snapshot?.data?.docs ?? [];
+          List<QueryDocumentSnapshot> docs = snapshot.data.docs ?? [];
           return GestureDetector(
             onTap: () {
               if (docs.isEmpty) {

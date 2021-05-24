@@ -10,6 +10,11 @@ class UserService extends Service {
     return firebaseAuth.currentUser.uid;
   }
 
+  Future<UserModel> getUser(String userId) async {
+    DocumentSnapshot userSnapshot = await usersRef.doc(userId).get();
+    return UserModel.fromJson(userSnapshot.data());
+  }
+
   setUserStatus(bool isOnline) {
     var user = firebaseAuth.currentUser;
     if (user != null) {
@@ -62,5 +67,49 @@ class UserService extends Service {
     });
 
     return true;
+  }
+
+  Future<List<String>> getUserFollowingIds(String userId) async {
+    QuerySnapshot followingSnapshot =
+        await followingRef.doc(userId).collection("userFollowing").get();
+
+    List<String> following =
+        followingSnapshot.docs.map((doc) => doc.id).toList();
+    return following;
+  }
+
+  Future<List<UserModel>> getUserFollowingUsers(String userId) async {
+    List<String> followingUserIds = await getUserFollowingIds(userId);
+    List<UserModel> followingUsers = [];
+
+    for (var userId in followingUserIds) {
+      DocumentSnapshot userSnapshot = await usersRef.doc(userId).get();
+      UserModel user = UserModel.fromJson(userSnapshot.data());
+      followingUsers.add(user);
+    }
+
+    return followingUsers;
+  }
+
+  Future<List<String>> getUserFollowersIds(String userId) async {
+    QuerySnapshot followersSnapshot =
+        await followersRef.doc(userId).collection("usersFollowers").get();
+
+    List<String> followers =
+        followersSnapshot.docs.map((doc) => doc.id).toList();
+    return followers;
+  }
+
+  Future<List<UserModel>> getUserFollowerUsers(String userId) async {
+    List<String> followingUserIds = await getUserFollowersIds(userId);
+    List<UserModel> followingUsers = [];
+
+    for (var userId in followingUserIds) {
+      DocumentSnapshot userSnapshot = await usersRef.doc(userId).get();
+      UserModel user = UserModel.fromJson(userSnapshot.data());
+      followingUsers.add(user);
+    }
+
+    return followingUsers;
   }
 }

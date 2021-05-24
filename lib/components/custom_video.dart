@@ -38,20 +38,21 @@ class _CustomVideoState extends State<CustomVideo> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: widget.width,
-      height: widget.height,
-      padding: const EdgeInsets.all(5),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(5),
-        child: VisibilityDetector(
-          key: ObjectKey(flickManager),
-          onVisibilityChanged: (visibility) {
-            if (visibility.visibleFraction == 0 && this.mounted) {
-              flickManager.pause();
-            }
-          },
+    return VisibilityDetector(
+      key: UniqueKey(),
+      onVisibilityChanged: (visibility) {
+        if (visibility.visibleFraction == 0 && this.mounted) {
+          flickManager.pause();
+        }
+      },
+      child: Container(
+        width: widget.width,
+        height: widget.height,
+        padding: const EdgeInsets.all(5),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(5),
           child: FlickMultiPlayer(
+            key: UniqueKey(),
             url: widget.imageUrl,
             flickMultiManager: flickManager,
             mute: true,
