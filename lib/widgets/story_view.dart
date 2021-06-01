@@ -1,6 +1,21 @@
 import 'package:flutter/material.dart';
 
-class StoryItems extends StatelessWidget {
+class StoryItems extends StatefulWidget {
+  @override
+  _StoryItemsState createState() => _StoryItemsState();
+}
+
+class _StoryItemsState extends State<StoryItems> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
