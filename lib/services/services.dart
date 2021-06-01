@@ -4,7 +4,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:nine_levelv6/utils/file_utils.dart';
 import 'package:nine_levelv6/utils/firebase.dart';
 import 'package:video_compress/video_compress.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
 
 abstract class Service {
   Future<String> uploadImage(Reference ref, File file) async {
@@ -26,7 +25,7 @@ abstract class Service {
   Future<String> uploadVideo(Reference ref, File file) async {
     MediaInfo mediaInfo = await VideoCompress.compressVideo(
       file.path,
-      quality: VideoQuality.DefaultQuality,
+      quality: VideoQuality.HighestQuality,
       deleteOrigin: false, // It's false by default
       includeAudio: true,
     );

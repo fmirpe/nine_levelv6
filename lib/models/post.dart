@@ -8,6 +8,7 @@ class PostModel {
   String location;
   String description;
   String mediaUrl;
+  String thumbnail;
   int type;
   // dynamic likesCount;
   // dynamic likes;
@@ -21,6 +22,7 @@ class PostModel {
     this.description,
     this.mediaUrl,
     this.type,
+    this.thumbnail,
     // this.likesCount,
     // this.likes,
     this.username,
@@ -35,6 +37,7 @@ class PostModel {
     description = json['description'];
     mediaUrl = json['mediaUrl'];
     type = json['type'];
+    thumbnail = json['thumbnail'];
     // likesCount = json['likes'].length ?? 0;
     // likes = json['likes'];
     timestamp = json['timestamp'];
@@ -53,6 +56,7 @@ class PostModel {
     // data['likes'] = this.likes;
     data['timestamp'] = this.timestamp;
     data['username'] = this.username;
+    data['thumbnail'] = this.thumbnail;
     return data;
   }
 }

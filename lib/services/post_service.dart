@@ -7,6 +7,7 @@ import 'package:nine_levelv6/screens/view_image.dart';
 import 'package:nine_levelv6/services/services.dart';
 import 'package:nine_levelv6/utils/firebase.dart';
 import 'package:uuid/uuid.dart';
+import 'package:video_compress/video_compress.dart';
 
 class PostService extends Service {
   String postId = Uuid().v4();
@@ -31,6 +32,7 @@ class PostService extends Service {
       "username": user.username,
       "ownerId": firebaseAuth.currentUser.uid,
       "mediaUrl": link,
+      "thumbnail": link,
       "type": 1,
       "description": description ?? "",
       "location": location ?? "Nine Level",
@@ -46,12 +48,20 @@ class PostService extends Service {
         await usersRef.doc(firebaseAuth.currentUser.uid).get();
     user = UserModel.fromJson(doc.data());
     var ref = postRef.doc();
+
+    var thumbnailFile = await VideoCompress.getFileThumbnail(
+      image.path,
+      quality: 100,
+      position: -1,
+    );
+    String linkthumbnail = await uploadImage(posts, thumbnailFile);
     ref.set({
       "id": ref.id,
       "postId": ref.id,
       "username": user.username,
       "ownerId": firebaseAuth.currentUser.uid,
       "mediaUrl": link,
+      "thumbnail": linkthumbnail,
       "type": 2,
       "description": description ?? "",
       "location": location ?? "Nine Level",

@@ -4,9 +4,9 @@ class StoryItems extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 130.0,
+      height: 80.0,
       child: ListView.builder(
-        itemCount: 5,
+        itemCount: 7,
         scrollDirection: Axis.horizontal,
         itemBuilder: (BuildContext context, int index) {
           return Padding(
@@ -14,7 +14,7 @@ class StoryItems extends StatelessWidget {
             child: Stack(
               children: [
                 Container(
-                  height: 95.0,
+                  height: 65.0,
                   width: 75.0,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(5.0),
@@ -25,7 +25,7 @@ class StoryItems extends StatelessWidget {
                   ),
                 ),
                 Positioned(
-                  top: 70.0,
+                  top: 50.0,
                   right: 25.0,
                   child: Container(
                     decoration: BoxDecoration(
@@ -46,7 +46,7 @@ class StoryItems extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.all(1.0),
                       child: CircleAvatar(
-                        radius: 15,
+                        radius: 10,
                         backgroundImage: AssetImage('assets/images/cm0.jpeg'),
                       ),
                     ),

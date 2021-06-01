@@ -16,11 +16,13 @@ class FlickMultiPlayer extends StatefulWidget {
     Key key,
     @required this.url,
     @required this.flickMultiManager,
+    this.thumbnail,
     this.mute = false,
   }) : super(key: key);
 
   final String url;
   final FlickMultiManager flickMultiManager;
+  final String thumbnail;
   final bool mute;
 
   @override
@@ -68,17 +70,19 @@ class _FlickMultiPlayerState extends State<FlickMultiPlayer> {
               child: Stack(
                 children: <Widget>[
                   Positioned.fill(
-                    child: ThumbnailGenerator(
-                      thumbnailRequest: ThumbnailRequest(
-                        video: widget.url,
-                        thumbnailPath: null,
-                        imageFormat: ImageFormat.JPEG,
-                        maxHeight: 400,
-                        maxWidth: 500,
-                        timeMs: 0,
-                        quality: 100,
-                      ),
-                    ),
+                    child: widget.thumbnail != null
+                        ? Image.network(widget.thumbnail)
+                        : ThumbnailGenerator(
+                            thumbnailRequest: ThumbnailRequest(
+                              video: widget.url,
+                              thumbnailPath: null,
+                              imageFormat: ImageFormat.JPEG,
+                              maxHeight: 400,
+                              maxWidth: 500,
+                              timeMs: 0,
+                              quality: 100,
+                            ),
+                          ),
                   ),
                   Positioned(
                     right: 10,
@@ -99,17 +103,19 @@ class _FlickMultiPlayerState extends State<FlickMultiPlayer> {
           ),
           flickVideoWithControlsFullscreen: FlickVideoWithControls(
             playerLoadingFallback: Center(
-              child: ThumbnailGenerator(
-                thumbnailRequest: ThumbnailRequest(
-                  video: widget.url,
-                  thumbnailPath: null,
-                  imageFormat: ImageFormat.JPEG,
-                  maxHeight: 400,
-                  maxWidth: 500,
-                  timeMs: 0,
-                  quality: 100,
-                ),
-              ),
+              child: widget.thumbnail != null
+                  ? Image.network(widget.thumbnail)
+                  : ThumbnailGenerator(
+                      thumbnailRequest: ThumbnailRequest(
+                        video: widget.url,
+                        thumbnailPath: null,
+                        imageFormat: ImageFormat.JPEG,
+                        maxHeight: 400,
+                        maxWidth: 500,
+                        timeMs: 0,
+                        quality: 100,
+                      ),
+                    ),
             ),
             controls: FlickLandscapeControls(),
             iconThemeData: IconThemeData(

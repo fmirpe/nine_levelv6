@@ -14,6 +14,7 @@ import 'package:nine_levelv6/utils/firebase.dart';
 import 'package:nine_levelv6/videochats/home_page.dart';
 import 'package:nine_levelv6/view_models/user/user_view_model.dart';
 import 'package:nine_levelv6/widgets/indicators.dart';
+import 'package:nine_levelv6/widgets/story_view.dart';
 import 'package:nine_levelv6/widgets/userpost.dart';
 import 'package:nine_levelv6/widgets/userpostvideo.dart';
 import 'package:provider/provider.dart';
@@ -152,12 +153,13 @@ class _TimelineState extends State<Timeline> {
         padding: EdgeInsets.symmetric(horizontal: 10.0),
         children: [
           //_isLoadingStories           ?
-          Container(
-            height: 88,
-            child: Center(
-              child: circularProgress(context),
-            ),
-          ),
+          // Container(
+          //   height: 88,
+          //   child: Center(
+          //     child: circularProgress(context),
+          //   ),
+          // ),
+          StoryItems(),
           // : StoriesWidget(
           //     _followingUsersWithStories,
           //   ),
