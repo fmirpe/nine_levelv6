@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:nine_levelv6/widgets/indicators.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 
@@ -51,7 +52,7 @@ class _ThumbnailGeneratorState extends State<ThumbnailGenerator> {
               ),
             );
           } else {
-            return CircularProgressIndicator();
+            return circularProgress(context);
           }
         },
       ),

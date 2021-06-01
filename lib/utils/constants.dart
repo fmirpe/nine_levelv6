@@ -82,6 +82,11 @@ class Constants {
   }
 }
 
+enum CameraConsumer {
+  post,
+  story,
+}
+
 class ThemeNotifier extends ChangeNotifier {
   final String key = 'theme';
   final String keyMute = 'muteVideo';

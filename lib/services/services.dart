@@ -9,15 +9,15 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 abstract class Service {
   Future<String> uploadImage(Reference ref, File file) async {
     var targetPath = "";
-    var result = await FlutterImageCompress.compressAndGetFile(
-      file.absolute.path,
-      targetPath,
-      quality: 95,
-    );
+    // var result = await FlutterImageCompress.compressAndGetFile(
+    //   file.absolute.path,
+    //   targetPath,
+    //   quality: 95,
+    // );
 
     String ext = FileUtils.getFileExtension(file);
     Reference storageReference = ref.child("${uuid.v4()}.$ext");
-    UploadTask uploadTask = storageReference.putFile(result);
+    UploadTask uploadTask = storageReference.putFile(file);
     await uploadTask.whenComplete(() => null);
     String fileUrl = await storageReference.getDownloadURL();
     return fileUrl;

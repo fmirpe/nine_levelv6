@@ -1,5 +1,6 @@
 import 'package:nine_levelv6/components/portrait_controls.dart';
 import 'package:nine_levelv6/components/thumbnail_generator.dart';
+import 'package:nine_levelv6/widgets/indicators.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 import 'package:video_thumbnail_generator/video_thumbnail_generator.dart';
 
@@ -85,10 +86,7 @@ class _FlickMultiPlayerState extends State<FlickMultiPlayer> {
                     child: Container(
                       width: 20,
                       height: 20,
-                      child: CircularProgressIndicator(
-                        backgroundColor: Colors.white,
-                        strokeWidth: 4,
-                      ),
+                      child: circularProgress(context),
                     ),
                   ),
                 ],

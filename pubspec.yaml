@@ -78,12 +78,16 @@ dependencies:
   flutter_statusbarcolor: ^0.2.3
   simple_animations: ^3.1.1
   flutter_link_preview: ^1.5.6
-  flutter_vlc_player: any
   video_thumbnail_generator: ^0.0.8
   video_thumbnail: ^0.3.3
   video_compress: ^3.0.0
   flutter_image_compress: ^1.0.0
   ionicons: ^0.1.2
+  camera: any
+  geocoder: ^0.2.1
+  liquid_swipe: ^1.5.0
+  location: ^3.0.2
+
 
 dev_dependencies:
   flutter_test:

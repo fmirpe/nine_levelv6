@@ -1,3 +1,4 @@
+import 'package:camera/camera.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:data_connection_checker/data_connection_checker.dart';
 import 'package:flutter/material.dart';
@@ -12,13 +13,13 @@ import 'package:nine_levelv6/utils/constants.dart';
 import 'package:nine_levelv6/utils/firebase.dart';
 import 'package:nine_levelv6/videochats/home_page.dart';
 import 'package:nine_levelv6/view_models/user/user_view_model.dart';
+import 'package:nine_levelv6/widgets/indicators.dart';
 import 'package:nine_levelv6/widgets/userpost.dart';
 import 'package:nine_levelv6/widgets/userpostvideo.dart';
 import 'package:provider/provider.dart';
 
 class Timeline extends StatefulWidget {
-  final String currentUserId;
-  Timeline(this.currentUserId);
+  Timeline();
   @override
   _TimelineState createState() => _TimelineState();
 }
@@ -27,20 +28,34 @@ class _TimelineState extends State<Timeline> {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   bool _isLoadingStories = false;
   List<UserModel> _followingUsersWithStories = [];
+  List<CameraDescription> _cameras;
+
+  Future<List<CameraDescription>> getCameras() async {
+    try {
+      _cameras = await availableCameras();
+    } on CameraException catch (_) {
+      showInSnackBar('Cant get cameras!');
+    }
+
+    return _cameras;
+  }
 
   @override
   void initState() {
     super.initState();
     _setupStories();
+    getCameras();
   }
 
   void _setupStories() async {
     setState(() => _isLoadingStories = true);
     UserViewModel viewModel =
         Provider.of<UserViewModel>(context, listen: false);
+    viewModel.setUser();
+    var user = viewModel.user;
     // Get currentUser followingUsers
     List<UserModel> followingUsers =
-        await viewModel.getUserFollowingUsers(widget.currentUserId);
+        await viewModel.getUserFollowingUsers(user.uid);
 
     if (!mounted) return;
     UserModel currentUser = await viewModel.getUser(viewModel.user.uid);
@@ -136,15 +151,16 @@ class _TimelineState extends State<Timeline> {
         shrinkWrap: true,
         padding: EdgeInsets.symmetric(horizontal: 10.0),
         children: [
-          _isLoadingStories
-              ? Container(
-                  height: 88,
-                  child: Center(
-                    child: CircularProgressIndicator(),
-                  ),
-                )
-              : StoriesWidget(
-                  _followingUsersWithStories, widget.goToCameraScreen),
+          //_isLoadingStories           ?
+          Container(
+            height: 88,
+            child: Center(
+              child: circularProgress(context),
+            ),
+          ),
+          // : StoriesWidget(
+          //     _followingUsersWithStories,
+          //   ),
           SizedBox(height: 5),
           StreamBuilderWrapper(
             shrinkWrap: true,

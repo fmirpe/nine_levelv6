@@ -82,8 +82,9 @@ class UserService extends Service {
     List<String> followingUserIds = await getUserFollowingIds(userId);
     List<UserModel> followingUsers = [];
 
-    for (var userId in followingUserIds) {
-      DocumentSnapshot userSnapshot = await usersRef.doc(userId).get();
+    for (var id in followingUserIds) {
+      DocumentSnapshot userSnapshot = await usersRef.doc(id).get();
+      if (!userSnapshot.exists) continue;
       UserModel user = UserModel.fromJson(userSnapshot.data());
       followingUsers.add(user);
     }
@@ -104,8 +105,9 @@ class UserService extends Service {
     List<String> followingUserIds = await getUserFollowersIds(userId);
     List<UserModel> followingUsers = [];
 
-    for (var userId in followingUserIds) {
-      DocumentSnapshot userSnapshot = await usersRef.doc(userId).get();
+    for (var id in followingUserIds) {
+      DocumentSnapshot userSnapshot = await usersRef.doc(id).get();
+      if (!userSnapshot.exists) continue;
       UserModel user = UserModel.fromJson(userSnapshot.data());
       followingUsers.add(user);
     }

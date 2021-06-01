@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -11,11 +13,19 @@ import 'package:nine_levelv6/view_models/auth/posts_view_model.dart';
 import 'package:nine_levelv6/widgets/indicators.dart';
 
 class CreatePost extends StatefulWidget {
+  final File imageFile;
+
+  CreatePost({this.imageFile});
   @override
   _CreatePostState createState() => _CreatePostState();
 }
 
 class _CreatePostState extends State<CreatePost> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     currentUserId() {
@@ -23,6 +33,7 @@ class _CreatePostState extends State<CreatePost> {
     }
 
     PostsViewModel viewModel = Provider.of<PostsViewModel>(context);
+    //viewModel.imgLink = widget?.imageFile?.path ?? null;
     return WillPopScope(
       onWillPop: () async {
         await viewModel.resetPost();
